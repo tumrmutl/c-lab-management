@@ -1,0 +1,9 @@
+---
+triple:          'arm64-apple-darwin'
+binary-path:     '/Users/milk/Documents/git/c-lab-management/output/test_checker'
+relocations:
+  - { offsetInCU: 0x26, offset: 0x26, size: 0x8, addend: 0x0, symName: _compare_files, symObjAddr: 0x0, symBinAddr: 0x1000036EC, symSize: 0x234 }
+  - { offsetInCU: 0x42, offset: 0x42, size: 0x8, addend: 0x0, symName: _compare_files, symObjAddr: 0x0, symBinAddr: 0x1000036EC, symSize: 0x234 }
+  - { offsetInCU: 0xC4, offset: 0xC4, size: 0x8, addend: 0x0, symName: _check_student_code, symObjAddr: 0x234, symBinAddr: 0x100003920, symSize: 0x290 }
+  - { offsetInCU: 0x170, offset: 0x170, size: 0x8, addend: 0x0, symName: _main, symObjAddr: 0x4C4, symBinAddr: 0x100003BB0, symSize: 0xC8 }
+...
