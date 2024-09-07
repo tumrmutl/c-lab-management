@@ -2,15 +2,15 @@ import csv
 import mysql.connector
 import os
 import glob
+from dotenv import load_dotenv
 
 # เชื่อมต่อกับฐานข้อมูล MySQL
 conn = mysql.connector.connect(
-    host="YOUR_SERVER_IP",
-    user="YOUR_USERNAME",
-    password="YOUR_PASSWORD",
-    database="student"
+    host=os.getenv("DB_HOST"),
+    user=os.getenv("DB_USER"),
+    password=os.getenv("DB_PASSWORD"),
+    database=os.getenv("DB_DATABASE")
 )
-
 
 cursor = conn.cursor()
 
