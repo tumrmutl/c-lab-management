@@ -11,6 +11,7 @@ conn = mysql.connector.connect(
     database="student"
 )
 
+
 cursor = conn.cursor()
 
 # กำหนดโฟลเดอร์ที่เก็บไฟล์ CSV
