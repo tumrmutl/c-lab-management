@@ -29,35 +29,24 @@ function handleCSVUpload($csvFile, $conn) {
         return;
     }
 
-    // Skip the header row
-    fgetcsv($csvFile);
-
     // Read data from CSV file line by line
     while (($row = fgetcsv($csvFile)) !== FALSE) {
-        $std_id = explode('_', $row[0])[0]; // Extract only the part before '_'
+        // Extract student_id and remove everything after '_'
+        $std_id = $row[0];
+        $std_id = explode('_', $std_id)[0]; // Extract only the part before '_'
+
         $lab_id = $row[1];
         $student_output = $row[2];
         $teacher_output = $row[3];
         $result = $row[4];
 
-        // Check if record exists
-        $sql_check = "SELECT COUNT(*) FROM ENGCC304 WHERE std_id='$std_id' AND lab_id='$lab_id'";
-        $result_check = $conn->query($sql_check);
-        $count = $result_check->fetch_array()[0];
-
-        if ($count > 0) {
-            // Update existing record
-            $sql = "UPDATE ENGCC304 
-                    SET student_output='$student_output', teacher_output='$teacher_output', result='$result'
-                    WHERE std_id='$std_id' AND lab_id='$lab_id'";
-        } else {
-            // Insert new record
-            $sql = "INSERT INTO ENGCC304 (std_id, lab_id, student_output, teacher_output, result)
-                    VALUES ('$std_id', '$lab_id', '$student_output', '$teacher_output', '$result')";
-        }
+        // Update database
+        $sql = "UPDATE ENGCC304 
+                SET student_output='$student_output', teacher_output='$teacher_output', result='$result'
+                WHERE std_id='$std_id' AND lab_id='$lab_id'";
 
         if (!$conn->query($sql)) {
-            echo json_encode(['status' => 'error', 'message' => "Error updating/adding record for student ID: $std_id, Error: " . $conn->error]);
+            echo json_encode(['status' => 'error', 'message' => "Error updating record for student ID: $std_id, Error: " . $conn->error]);
             fclose($csvFile);
             return;
         }
