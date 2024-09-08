@@ -41,18 +41,18 @@ function handleCSVUpload($csvFile, $conn) {
         $result = $row[4];
 
         // Check if record exists
-        $sql_check = "SELECT COUNT(*) FROM ENGCC304 WHERE std_id='$std_id' AND lab_id='$lab_id'";
+        $sql_check = "SELECT COUNT(*) FROM LAB WHERE std_id='$std_id' AND lab_id='$lab_id'";
         $result_check = $conn->query($sql_check);
         $count = $result_check->fetch_array()[0];
 
         if ($count > 0) {
             // Update existing record
-            $sql = "UPDATE ENGCC304 
+            $sql = "UPDATE LAB 
                     SET student_output='$student_output', teacher_output='$teacher_output', result='$result'
                     WHERE std_id='$std_id' AND lab_id='$lab_id'";
         } else {
             // Insert new record
-            $sql = "INSERT INTO ENGCC304 (std_id, lab_id, student_output, teacher_output, result)
+            $sql = "INSERT INTO LAB (std_id, lab_id, student_output, teacher_output, result)
                     VALUES ('$std_id', '$lab_id', '$student_output', '$teacher_output', '$result')";
         }
 
