@@ -1,49 +1,83 @@
-import csv
-import mysql.connector
 import os
 import glob
-from dotenv import load_dotenv
+import requests
+import csv
 
-# เชื่อมต่อกับฐานข้อมูล MySQL
-conn = mysql.connector.connect(
-    host=os.getenv("DB_HOST"),
-    port=os.getenv("DB_PORT"),
-    user=os.getenv("DB_USER"),
-    password=os.getenv("DB_PASSWORD"),
-    database=os.getenv("DB_DATABASE")
-)
-
-cursor = conn.cursor()
-
-# กำหนดโฟลเดอร์ที่เก็บไฟล์ CSV
 result_folder = 'result/'
 
-# ค้นหาไฟล์ result_labX.csv ทั้งหมดในโฟลเดอร์
-csv_files = glob.glob(os.path.join(result_folder, 'result_lab*.csv'))
+def list_files_in_folder(folder):
+    """Print all files in the specified folder."""
+    try:
+        files = os.listdir(folder)
+        print(f"Files in folder '{folder}':")
+        if not files:
+            print("No files found.")
+        else:
+            for file in files:
+                print(f" - {file}")
+    except Exception as e:
+        print(f"Error listing files in folder '{folder}': {e}")
 
-# อ่านแต่ละไฟล์ CSV
-for csv_file in csv_files:
-    print(f"Processing file: {csv_file}")
-    with open(csv_file, mode='r') as file:
-        csv_reader = csv.DictReader(file)
-        for row in csv_reader:
-            student_id = row['student id']
-            lab = row['lab']
-            student_output = row['student output']
-            teacher_output = row['teacher output']
-            result = row['result']
+def upload_file(csv_file):
+    """Upload a single file and return the result."""
+    print(f"Attempting to upload file: {csv_file}")
+    try:
+        # Open the CSV file and skip the header
+        with open(csv_file, 'r') as file:
+            reader = csv.reader(file)
+            header = next(reader)  # Skip the header row
+            # Convert remaining rows to a list of dictionaries for upload
+            data = [row for row in reader]
 
-            # อัปเดตข้อมูลในฐานข้อมูล หากค่า result เดิมเป็น 0
-            update_query = """
-            UPDATE student
-            SET result = %s, student_output = %s, teacher_output = %s
-            WHERE student_id = %s AND lab = %s AND result = 0
-            """
-            cursor.execute(update_query, (result, student_output, teacher_output, student_id, lab))
-            conn.commit()
+        # Create a temporary file with the data (excluding the header)
+        temp_file_path = csv_file + '.temp'
+        with open(temp_file_path, 'w', newline='') as temp_file:
+            writer = csv.writer(temp_file)
+            writer.writerows(data)
 
-# ปิดการเชื่อมต่อฐานข้อมูล
-cursor.close()
-conn.close()
+        # Upload the temporary file
+        with open(temp_file_path, 'rb') as file:
+            files = {'csv_file': file}
+            response = requests.post(upload_url, files=files)
+            response.raise_for_status()  # Check HTTP status code
 
-print("All files processed and uploaded.")
+            response_data = response.json()
+            if response_data['status'] == 'success':
+                return (csv_file, True, response_data.get('message', 'Uploaded successfully'))
+            else:
+                return (csv_file, False, response_data.get('message', 'Upload failed'))
+    except requests.RequestException as e:
+        return (csv_file, False, f"Request failed: {e}")
+    except IOError as e:
+        return (csv_file, False, f"Failed to open file: {e}")
+    finally:
+        # Clean up the temporary file
+        if os.path.exists(temp_file_path):
+            os.remove(temp_file_path)
+
+def main():
+    # Print all files in the result folder
+    list_files_in_folder(result_folder)
+    
+    # Correct the pattern to match the actual file names
+    pattern = os.path.join(result_folder, 'results_lab*.csv')
+    csv_files = glob.glob(pattern)
+    if not csv_files:
+        print(f"No CSV files found with pattern '{pattern}'.")
+
+    results = []
+    for csv_file in csv_files:
+        print(f"\nProcessing file: {csv_file}")
+        file_name, success, message = upload_file(csv_file)
+        results.append((file_name, success, message))
+
+    print("\nSummary of all files:")
+    for file_name, success, message in results:
+        if success:
+            print(f"{file_name} uploaded successfully: {message}")
+        else:
+            print(f"{file_name} failed to upload: {message}")
+
+if __name__ == "__main__":
+    upload_url = 'https://thailandfxwarrior.com/lab/upload_csv.php'
+    main()

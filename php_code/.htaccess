@@ -1,0 +1,32 @@
+
+
+# BEGIN WordPress
+# ทิศทาง (เส้น) ระหว่าง "จุดเริ่มต้น WordPress" และ "จุดสิ้นสุด WordPress" จะถูกสร้างขึ้นมา
+# โดยอัตโนมัติและควรจะถูกแก้ไขได้ด้วยตัวกรองของ WordPress เท่านั้น
+# การเปลี่ยนแปลงใดๆ ที่กระทำต่อทิศทางระหว่างเครื่องหมายจะถูกเขียนทับ
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+RewriteBase /
+RewriteRule ^index\.php$ - [L]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . /index.php [L]
+</IfModule>
+
+<Files ".env">
+   Order allow,deny
+   Deny from all
+</Files>
+
+
+# END WordPress
+php_flag  log_errors off
+
+# BEGIN Speed Optimizer by 10Web
+# ทิศทาง (เส้น) ระหว่าง "จุดเริ่มต้น Speed Optimizer by 10Web" และ "จุดสิ้นสุด Speed Optimizer by 10Web" จะถูกสร้างขึ้นมา
+# โดยอัตโนมัติและควรจะถูกแก้ไขได้ด้วยตัวกรองของ WordPress เท่านั้น
+# การเปลี่ยนแปลงใดๆ ที่กระทำต่อทิศทางระหว่างเครื่องหมายจะถูกเขียนทับ
+
+
+# END Speed Optimizer by 10Web
