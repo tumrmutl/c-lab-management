@@ -1,12 +1,10 @@
 #include <stdio.h>
 int main() {
 
-    int N ;
-    printf( "enter line : " ) ;
-    scanf( "%d", &N ) ;
-    for( int i = 0 ; i < N ; i++ ) {
-        printf( "[%d] hello world\n", i ) ;
-    }
+    // ส่วนที่นักศึกษาจะต้องเขียนโค้ด
+    int a, b;
+    scanf("%d %d", &a, &b);
+    printf("%d", a + b);
 
     return 0;
 }

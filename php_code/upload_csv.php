@@ -9,12 +9,10 @@ function loadEnv($path) {
     $lines = file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
 
     foreach ($lines as $line) {
-        // Skip lines that are comments or do not contain '='
         if (strpos(trim($line), '#') === 0 || strpos($line, '=') === false) {
             continue;
         }
 
-        // Split key and value
         list($key, $value) = explode('=', $line, 2);
         $envVars[trim($key)] = trim($value);
     }
@@ -22,79 +20,55 @@ function loadEnv($path) {
     return $envVars;
 }
 
-function handleCSVUpload($csvFile, $conn) {
-    $csvFile = fopen($csvFile, 'r');
-    if (!$csvFile) {
-        echo json_encode(['status' => 'error', 'message' => 'Failed to open CSV file']);
-        return;
-    }
+function handleJSONData($data, $conn) {
+    foreach ($data as $row) {
+        $std_id = $conn->real_escape_string($row['student id']);
+        $lab_id = $conn->real_escape_string($row['lab']);
+        $student_output = $conn->real_escape_string($row['student output']);
+        $teacher_output = $conn->real_escape_string($row['teacher output']);
+        $result = $conn->real_escape_string($row['result']);
 
-    // Skip the header row
-    fgetcsv($csvFile);
-
-    // Read data from CSV file line by line
-    while (($row = fgetcsv($csvFile)) !== FALSE) {
-        $std_id = explode('_', $row[0])[0]; // Extract only the part before '_'
-        $lab_id = $row[1];
-        $student_output = $row[2];
-        $teacher_output = $row[3];
-        $result = $row[4];
-
-        // Check if record exists
-        $sql_check = "SELECT COUNT(*) FROM ENGCC304 WHERE std_id='$std_id' AND lab_id='$lab_id'";
+        $sql_check = "SELECT COUNT(*) FROM LAB WHERE std_id='$std_id' AND lab_id='$lab_id'";
         $result_check = $conn->query($sql_check);
         $count = $result_check->fetch_array()[0];
 
         if ($count > 0) {
-            // Update existing record
-            $sql = "UPDATE ENGCC304 
+            $sql = "UPDATE LAB 
                     SET student_output='$student_output', teacher_output='$teacher_output', result='$result'
                     WHERE std_id='$std_id' AND lab_id='$lab_id'";
         } else {
-            // Insert new record
-            $sql = "INSERT INTO ENGCC304 (std_id, lab_id, student_output, teacher_output, result)
+            $sql = "INSERT INTO LAB (std_id, lab_id, student_output, teacher_output, result)
                     VALUES ('$std_id', '$lab_id', '$student_output', '$teacher_output', '$result')";
         }
 
         if (!$conn->query($sql)) {
-            echo json_encode(['status' => 'error', 'message' => "Error updating/adding record for student ID: $std_id, Error: " . $conn->error]);
-            fclose($csvFile);
-            return;
+            error_log("Error updating/adding record for student ID: $std_id, Error: " . $conn->error);
+            return ['status' => 'error', 'message' => 'Database update failed'];
         }
     }
 
-    fclose($csvFile);
+    return ['status' => 'success', 'message' => 'Data processed successfully'];
 }
 
 try {
-    // Load .env file
     $env = loadEnv(__DIR__ . '/.env');
 
-    // Create connection
     $conn = new mysqli($env['DB_HOST'], $env['DB_USERNAME'], $env['DB_PASSWORD'], $env['DB_NAME']);
 
     if ($conn->connect_error) {
         throw new Exception("Connection failed: " . $conn->connect_error);
     }
 
-    // Check if file is uploaded
-    if (isset($_FILES['csv_file']) && $_FILES['csv_file']['error'] === UPLOAD_ERR_OK) {
-        $csvFilePath = $_FILES['csv_file']['tmp_name'];
+    // Read raw POST data
+    $json = file_get_contents('php://input');
+    $data = json_decode($json, true);
 
-        // Update database from CSV file
-        handleCSVUpload($csvFilePath, $conn);
-
-        // Move file to the desired location
-        $uploadDir = __DIR__ . '/uploads/';
-        $uploadFile = $uploadDir . basename($_FILES['csv_file']['name']);
-
-        if (move_uploaded_file($csvFilePath, $uploadFile)) {
-            echo json_encode(['status' => 'success', 'message' => 'File uploaded and processed successfully']);
-        } else {
-            echo json_encode(['status' => 'error', 'message' => 'Failed to move uploaded file', 'details' => error_get_last()]);
-        }
+    if (json_last_error() === JSON_ERROR_NONE) {
+        // Handle JSON data
+        $result = handleJSONData($data, $conn);
+        echo json_encode($result);
     } else {
-        echo json_encode(['status' => 'error', 'message' => 'No valid file uploaded']);
+        echo json_encode(['status' => 'error', 'message' => 'Invalid JSON data']);
     }
 
 } catch (Exception $e) {

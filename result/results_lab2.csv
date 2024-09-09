@@ -2,6 +2,5 @@ student id,lab,student output,teacher output,result
 66543222010-0,lab2,"[0] hello world
 [1] hello world","[0] hello world
 [1] hello world",1
-672-2,lab2,"[0] hello world
-[1] hello world","[0] hello world
-[1] hello world",1
+672-2,lab2,3,"[0] hello world
+[1] hello world",0

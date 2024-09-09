@@ -2,6 +2,8 @@ import os
 import glob
 import requests
 import csv
+import json
+import pyperclip  # สำหรับการคัดลอกข้อมูลไปยัง clipboard
 
 result_folder = 'result/'
 
@@ -18,42 +20,49 @@ def list_files_in_folder(folder):
     except Exception as e:
         print(f"Error listing files in folder '{folder}': {e}")
 
-def upload_file(csv_file):
-    """Upload a single file and return the result."""
-    print(f"Attempting to upload file: {csv_file}")
+def copy_to_clipboard(data):
+    """Copy data to clipboard."""
     try:
-        # Open the CSV file and skip the header
-        with open(csv_file, 'r') as file:
-            reader = csv.reader(file)
-            header = next(reader)  # Skip the header row
-            # Convert remaining rows to a list of dictionaries for upload
-            data = [row for row in reader]
+        pyperclip.copy(data)
+        print("Data copied to clipboard successfully.")
+    except Exception as e:
+        print(f"Failed to copy data to clipboard: {e}")
 
-        # Create a temporary file with the data (excluding the header)
-        temp_file_path = csv_file + '.temp'
-        with open(temp_file_path, 'w', newline='') as temp_file:
-            writer = csv.writer(temp_file)
-            writer.writerows(data)
+def upload_data(data, upload_url):
+    """Send JSON data to the server."""
+    try:
+        headers = {'Content-Type': 'application/json'}
+        response = requests.post(upload_url, data=json.dumps(data), headers=headers)
+        response.raise_for_status()  # ตรวจสอบว่า request สำเร็จ
+        response_data = response.json()
 
-        # Upload the temporary file
-        with open(temp_file_path, 'rb') as file:
-            files = {'csv_file': file}
-            response = requests.post(upload_url, files=files)
-            response.raise_for_status()  # Check HTTP status code
-
-            response_data = response.json()
-            if response_data['status'] == 'success':
-                return (csv_file, True, response_data.get('message', 'Uploaded successfully'))
-            else:
-                return (csv_file, False, response_data.get('message', 'Upload failed'))
+        if response_data['status'] == 'success':
+            print(f"Data uploaded successfully: {response_data.get('message', 'Uploaded successfully')}")
+        else:
+            print(f"Upload failed: {response_data.get('message', 'Upload failed')}")
     except requests.RequestException as e:
-        return (csv_file, False, f"Request failed: {e}")
+        print(f"Request failed: {e}")
+
+def process_csv_file(csv_file):
+    """Process CSV file and convert it to a JSON format."""
+    print(f"Processing file: {csv_file}")
+    try:
+        with open(csv_file, 'r') as file:
+            reader = csv.DictReader(file)
+            data = list(reader)  # Convert CSV rows to a list of dictionaries
+            
+        # Convert to JSON format
+        json_data = json.dumps(data, indent=4)
+        print(f"Converted CSV to JSON: \n{json_data}")
+
+        # Copy data to clipboard
+        copy_to_clipboard(json_data)
+        
+        # Upload JSON data
+        upload_data(data, upload_url)
+
     except IOError as e:
-        return (csv_file, False, f"Failed to open file: {e}")
-    finally:
-        # Clean up the temporary file
-        if os.path.exists(temp_file_path):
-            os.remove(temp_file_path)
+        print(f"Failed to open file: {e}")
 
 def main():
     # Print all files in the result folder
@@ -65,19 +74,9 @@ def main():
     if not csv_files:
         print(f"No CSV files found with pattern '{pattern}'.")
 
-    results = []
     for csv_file in csv_files:
-        print(f"\nProcessing file: {csv_file}")
-        file_name, success, message = upload_file(csv_file)
-        results.append((file_name, success, message))
-
-    print("\nSummary of all files:")
-    for file_name, success, message in results:
-        if success:
-            print(f"{file_name} uploaded successfully: {message}")
-        else:
-            print(f"{file_name} failed to upload: {message}")
+        process_csv_file(csv_file)
 
 if __name__ == "__main__":
-    upload_url = 'https://thailandfxwarrior.com/lab/upload_csv.php'
+    upload_url = 'https://thailandfxwarrior.com/lab/upload_csv.php'  # เปลี่ยนเป็น endpoint ที่รองรับ JSON
     main()
