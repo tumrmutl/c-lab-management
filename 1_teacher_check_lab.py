@@ -2,26 +2,29 @@ import os
 import subprocess
 import csv
 
-def compile_and_run(student_file, lab_input, expected_output):
-    # คอมไพล์โค้ดของนักศึกษา
+def compile_and_run(student_file, lab_input, expected_output, timeout=5):
     exe_file = student_file.replace('.c', '.exe')
     compile_process = subprocess.run(['gcc', student_file, '-o', exe_file], capture_output=True)
     
     if compile_process.returncode != 0:
         return None, None, compile_process.stderr.decode('utf-8')
     
-    # รันโปรแกรมพร้อมกับ input
-    with open(lab_input, 'r') as infile, open('student_output.txt', 'w') as outfile:
-        run_process = subprocess.run([f'./{exe_file}'], stdin=infile, stdout=outfile, stderr=subprocess.PIPE)
-    
-    if run_process.returncode != 0:
-        return None, None, run_process.stderr.decode('utf-8')
+    try:
+        with open(lab_input, 'r') as infile, open('student_output.txt', 'w') as outfile:
+            run_process = subprocess.run([f'./{exe_file}'], stdin=infile, stdout=outfile, stderr=subprocess.PIPE, timeout=timeout)
+        
+        if run_process.returncode != 0:
+            return None, None, run_process.stderr.decode('utf-8')
+    except subprocess.TimeoutExpired:
+        return None, None, f"โปรแกรมรันเกินเวลาที่กำหนด ({timeout} วินาที)"
 
-    # อ่าน output ของนักศึกษา
     with open('student_output.txt', 'r') as student_output_file:
         student_output = student_output_file.read().strip()
 
-    # อ่าน expected output ของอาจารย์
+    # จำกัดขนาด output ไม่ให้เกิน 10,000 ตัวอักษร
+    if len(student_output) > 10000:
+        return None, None, "output เกินขนาดที่กำหนด (10,000 ตัวอักษร)"
+
     with open(expected_output, 'r') as expected_output_file:
         expected_output_content = expected_output_file.read().strip()
 
@@ -40,39 +43,52 @@ def main():
     input_folder = 'teacher_input'
     output_folder = 'teacher_output'
 
-    results = []
+    if not os.path.exists('result'):
+        os.makedirs('result')
 
-    # ตรวจสอบโฟลเดอร์ที่เก็บไฟล์ของ lab ทั้งหมด
+    # ดึงเลข lab จากชื่อไฟล์ใน input_folder
     lab_numbers = set()
     for filename in os.listdir(input_folder):
         if filename.endswith('_input.dat'):
             lab_number = filename.split('_')[0]
             lab_numbers.add(lab_number)
-    
+
     for lab_number in lab_numbers:
         lab_input = os.path.join(input_folder, f'{lab_number}_input.dat')
         expected_output = os.path.join(output_folder, f'{lab_number}_output.dat')
         
-        # ตรวจสอบโฟลเดอร์ที่เก็บโค้ดของนักศึกษา
+        results = []
+        
         for student_file in os.listdir(student_code_folder):
             if student_file.endswith('.c'):
-                student_file_path = os.path.join(student_code_folder, student_file)
-                print(f"ตรวจสอบไฟล์โค้ด: {student_file_path}")
+                # ตรวจสอบชื่อไฟล์ที่เป็น studentid_labnumber.c
+                parts = student_file.split('_')
+                if len(parts) == 2:
+                    student_id = parts[0]
+                    student_lab_number = parts[1].replace('.c', '')
 
-                student_output, expected_output_content, error = compile_and_run(student_file_path, lab_input, expected_output)
+                    # ตรวจสอบว่าไฟล์นี้ตรงกับ lab ปัจจุบันหรือไม่
+                    if student_lab_number == lab_number:
+                        student_file_path = os.path.join(student_code_folder, student_file)
+                        print(f"ตรวจสอบไฟล์โค้ด: {student_file_path}")
 
-                if error:
-                    print(f"{student_file}: เกิดข้อผิดพลาดขณะรันโปรแกรม: {error}")
-                    results.append([student_file, lab_number, 'เกิดข้อผิดพลาด', 'N/A', 0])
-                else:
-                    is_correct = (student_output == expected_output_content)
-                    results.append([student_file, lab_number, student_output, expected_output_content, int(is_correct)])
+                        student_output, expected_output_content, error = compile_and_run(student_file_path, lab_input, expected_output)
 
-        # บันทึกผลลัพธ์ลง CSV สำหรับ lab นี้
-        save_results_to_csv(results, lab_number)
-        print(f"บันทึกผลลัพธ์ลงไฟล์ CSV เรียบร้อย: results_{lab_number}.csv")
+                        if error:
+                            print(f"{student_file}: เกิดข้อผิดพลาดขณะรันโปรแกรม: {error}")
+                            results.append([student_id, lab_number, 'เกิดข้อผิดพลาด', 'N/A', 0])
+                        else:
+                            is_correct = (student_output == expected_output_content)
+                            results.append([student_id, lab_number, student_output, expected_output_content, int(is_correct)])
+
+        # บันทึกผลลัพธ์ลง CSV
+        if results:
+            save_results_to_csv(results, lab_number)
+            print(f"บันทึกผลลัพธ์ลงไฟล์ CSV เรียบร้อย: results_{lab_number}.csv")
+            print("")
+        else:
+            print(f"ไม่มีผลลัพธ์สำหรับ lab {lab_number}")
         
-        # เคลียร์ผลลัพธ์เพื่อเตรียมสำหรับ lab ถัดไป
         results.clear()
 
 if __name__ == "__main__":

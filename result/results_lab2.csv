@@ -1,3 +1,6 @@
 student id,lab,student output,teacher output,result
-6755666656-7_lab1.c,lab2,2,2,1
-673333333-3_lab1.c,lab2,2,2,1
+66543222010-0,lab2,"[0] hello world
+[1] hello world","[0] hello world
+[1] hello world",1
+672-2,lab2,enter line :[0] hello world[1] hello world,"[0] hello world
+[1] hello world",0
