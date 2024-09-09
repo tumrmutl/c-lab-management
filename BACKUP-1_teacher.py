@@ -28,10 +28,7 @@ def compile_and_run(student_file, lab_input, expected_output, timeout=5):
     with open(expected_output, 'r') as expected_output_file:
         expected_output_content = expected_output_file.read().strip()
 
-    # ลบ prompt "Please enter line:" ออกจาก student_output ก่อนเปรียบเทียบ
-    student_output_filtered = student_output.replace("enter line :", "").strip()
-
-    return student_output_filtered, expected_output_content, None
+    return student_output, expected_output_content, None
 
 def save_results_to_csv(results, lab_number):
     csv_file = f'result/results_{lab_number}.csv'
