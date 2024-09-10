@@ -3,7 +3,6 @@ import difflib
 import csv
 import hashlib
 import re
-import ast
 import tokenize
 from io import StringIO
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
@@ -11,6 +10,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 from transformers import RobertaTokenizer, RobertaModel
 import torch
 import networkx as nx
+import time
 
 # ดึงรายชื่อไฟล์จากโฟลเดอร์
 folder_path = 'student_code'
@@ -44,16 +44,7 @@ def normalize_code_structure(code):
     code = re.sub(r'\breturn\b', '', code)
     return code.strip()
 
-# ฟังก์ชันเปรียบเทียบโครงสร้าง (AST)
-def compare_ast(code1, code2):
-    try:
-        tree1 = ast.parse(code1)
-        tree2 = ast.parse(code2)
-        return difflib.SequenceMatcher(None, ast.dump(tree1), ast.dump(tree2)).ratio() * 100
-    except SyntaxError:
-        return 0
-
-# ฟังก์ชันการเปรียบเทียบ Tokenization
+# ฟังก์ชันเปรียบเทียบ Tokenization
 def compare_tokenization(code1, code2):
     tokens1 = list(tokenize.generate_tokens(StringIO(code1).readline))
     tokens2 = list(tokenize.generate_tokens(StringIO(code2).readline))
@@ -127,22 +118,30 @@ def extract_file_id(file_name):
 # ฟังก์ชันเปรียบเทียบไฟล์ตามโครงสร้าง
 def compare_files_in_groups(lab_groups):
     similarities = []
+    total_comparisons = sum(len(file_list) * (len(file_list) - 1) for file_list in lab_groups.values()) // 2
+    comparisons_done = 0
+    
     for lab_id, file_list in lab_groups.items():
         num_files = len(file_list)
         for i in range(num_files):
-            for j in range(num_files):
-                if i != j:
-                    file1_path = os.path.join(folder_path, file_list[i])
-                    file2_path = os.path.join(folder_path, file_list[j])
-                    
-                    similarity = compare_files(file1_path, file2_path)
-                    
-                    similarities.append({
-                        'file1': extract_file_id(file_list[i]),
-                        'file2': extract_file_id(file_list[j]),
-                        'lab_id': lab_id,
-                        **similarity
-                    })
+            for j in range(i + 1, num_files):
+                file1_path = os.path.join(folder_path, file_list[i])
+                file2_path = os.path.join(folder_path, file_list[j])
+                
+                similarity = compare_files(file1_path, file2_path)
+                
+                similarities.append({
+                    'file1': extract_file_id(file_list[i]),
+                    'file2': extract_file_id(file_list[j]),
+                    'lab_id': lab_id,
+                    **similarity
+                })
+                
+                comparisons_done += 1
+                progress = (comparisons_done / total_comparisons) * 100
+                print(f"Progress: {progress:.2f}%")
+                time.sleep(0.1)  # Small delay to simulate processing time
+    
     return similarities
 
 def compare_files(file_path1, file_path2):
@@ -168,26 +167,20 @@ def compare_files(file_path1, file_path2):
     # เปรียบเทียบตามโครงสร้าง (ใช้ normalized structure content)
     structure_similarity = difflib.SequenceMatcher(None, normalized_structure1, normalized_structure2).ratio() * 100
     
-    # เปรียบเทียบ AST
-    ast_similarity = compare_ast(file1_content, file2_content)
-    
     # เปรียบเทียบ Tokenization
     token_similarity = compare_tokenization(file1_content, file2_content)
     
     # AI-based comparison methods
     embedding_similarity = compare_embeddings(file1_content, file2_content)
     tfidf_similarity = compare_tfidf(file1_content, file2_content)
-    graph_similarity = compare_graphs(file_path1, file_path2)
     
     return {
         'similarity': similarity,
         'hash_similarity': hash_similarity,
         'structure_similarity': structure_similarity,
-        'ast_similarity': ast_similarity,
         'token_similarity': token_similarity,
         'embedding_similarity': embedding_similarity,
-        'tfidf_similarity': tfidf_similarity,
-        'graph_similarity': graph_similarity
+        'tfidf_similarity': tfidf_similarity
     }
 
 # แยกไฟล์ตาม Lab
@@ -200,8 +193,8 @@ similarities = compare_files_in_groups(lab_groups)
 csv_file_path = 'result_duplicate.csv'
 with open(csv_file_path, mode='w', newline='', encoding='utf-8') as file:
     writer = csv.writer(file)
-    writer.writerow(['Lab ID', 'File 1', 'File 2', 'Similarity (%)', 'Hash Similarity (%)', 'Structural Similarity (%)', 'AST Similarity (%)', 'Token Similarity (%)', 'Embedding Similarity (%)', 'TF-IDF Similarity (%)', 'Graph Similarity (%)'])
+    writer.writerow(['Lab ID', 'File 1', 'File 2', 'Similarity (%)', 'Hash Similarity (%)', 'Structural Similarity (%)', 'Token Similarity (%)', 'Embedding Similarity (%)', 'TF-IDF Similarity (%)'])
     for result in similarities:
-        writer.writerow([result['lab_id'], result['file1'], result['file2'], f"{result['similarity']:.2f}", f"{result['hash_similarity']:.2f}", f"{result['structure_similarity']:.2f}", f"{result['ast_similarity']:.2f}", f"{result['token_similarity']:.2f}", f"{result['embedding_similarity']:.2f}", f"{result['tfidf_similarity']:.2f}", f"{result['graph_similarity']:.2f}"])
+        writer.writerow([result['lab_id'], result['file1'], result['file2'], f"{result['similarity']:.2f}", f"{result['hash_similarity']:.2f}", f"{result['structure_similarity']:.2f}", f"{result['token_similarity']:.2f}", f"{result['embedding_similarity']:.2f}", f"{result['tfidf_similarity']:.2f}"])
 
 print(f"Results have been written to {csv_file_path}")

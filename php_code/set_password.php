@@ -1,4 +1,11 @@
 <?php
+// ตรวจสอบว่าผู้ใช้ได้เข้าสู่ระบบแล้วหรือยัง
+session_start();
+if (!isset($_COOKIE['admin_logged_in']) || $_COOKIE['admin_logged_in'] !== 'true') {
+    header('Location: index.php');
+    exit();
+}
+
 // รหัสผ่านส่วนตัวที่ฝังในโค้ด
 $admin_password = "113333";
 
@@ -18,31 +25,47 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             // เขียนรหัสผ่านใหม่ลงในไฟล์
             fwrite($file_handle, $new_password);
             fclose($file_handle);
-            echo "รหัสผ่านได้ถูกบันทึกเรียบร้อยแล้ว";
+            echo "<div class='alert alert-success' role='alert'>รหัสผ่านได้ถูกบันทึกเรียบร้อยแล้ว</div>";
         } else {
-            echo "ไม่สามารถเปิดไฟล์ pass.dat ได้";
+            echo "<div class='alert alert-danger' role='alert'>ไม่สามารถเปิดไฟล์ pass.dat ได้</div>";
         }
     } else {
         // แจ้งเตือนผู้ใช้ว่ารหัสผ่านไม่ถูกต้อง
-        echo "คุณกำลังละเมิดข้อมูลของเรา!";
+        echo "<div class='alert alert-warning' role='alert'>คุณกำลังละเมิดข้อมูลของเรา!</div>";
     }
 }
 ?>
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ตั้งค่ารหัสผ่าน</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
 <body>
-    <form method="POST" action="set_password.php">
-        <label>รหัสผ่านส่วนตัว:</label>
-        <input type="password" name="admin_password" required><br><br>
 
-        <label>รหัสผ่านใหม่สำหรับใช้งาน:</label>
-        <input type="password" name="new_password" required><br><br>
+    <!-- Include เมนู -->
+    <?php include 'admin_menu.php'; ?>
 
-        <input type="submit" value="บันทึก">
-    </form>
+    <div class="container mt-4">
+        <h1 class="mb-4">ตั้งค่ารหัสผ่าน</h1>
+        <form method="POST" action="set_password.php">
+            <div class="form-group">
+                <label for="admin_password">รหัสผ่านส่วนตัว:</label>
+                <input type="password" class="form-control" id="admin_password" name="admin_password" required>
+            </div>
+            <div class="form-group">
+                <label for="new_password">รหัสผ่านใหม่สำหรับใช้งาน:</label>
+                <input type="password" class="form-control" id="new_password" name="new_password" required>
+            </div>
+            <button type="submit" class="btn btn-primary">บันทึก</button>
+        </form>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>

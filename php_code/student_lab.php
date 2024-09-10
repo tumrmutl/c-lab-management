@@ -7,8 +7,7 @@ $uploadOk = 1;
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // กำหนดชื่อไฟล์และนามสกุล
     $fileName = basename($_FILES["fileToUpload"]["name"]);
-    $target_file = $target_dir . $fileName;
-    $fileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
+    $fileType = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
 
     // อ่านรหัสจากไฟล์ pass.dat
     $passFile = 'pass.dat';
@@ -20,11 +19,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         
         // ตรวจสอบว่ารหัสผ่านถูกต้องหรือไม่
         if ($enteredPassword !== $validPassword) {
-            echo "รหัสผ่านไม่ถูกต้อง.";
+            echo "<div class='alert alert-danger' role='alert'>รหัสผ่านไม่ถูกต้อง.</div>";
             $uploadOk = 0;
         }
     } else {
-        echo "กรุณากรอกรหัสผ่าน.";
+        echo "<div class='alert alert-danger' role='alert'>กรุณากรอกรหัสผ่าน.</div>";
         $uploadOk = 0;
     }
     
@@ -32,7 +31,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (isset($_POST['course'])) {
         $course = $_POST['course'];
     } else {
-        echo "กรุณาเลือกวิชา.";
+        echo "<div class='alert alert-danger' role='alert'>กรุณาเลือกวิชา.</div>";
+        $uploadOk = 0;
+    }
+
+    // ตรวจสอบว่ามีการกรอกข้อมูลรหัสนักศึกษาและเลข Lab หรือไม่
+    if (isset($_POST['student_id']) && isset($_POST['lab_number'])) {
+        $student_id = $_POST['student_id'];
+        $lab_number = $_POST['lab_number'];
+    } else {
+        echo "<div class='alert alert-danger' role='alert'>กรุณากรอกรหัสนักศึกษาและเลข Lab.</div>";
         $uploadOk = 0;
     }
 
@@ -40,23 +48,27 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if ($uploadOk == 1) {
         // ตรวจสอบนามสกุลไฟล์
         if (!in_array($fileType, ['c', 'cpp', 'py', 'java'])) {
-            echo "ขออภัย, เพียงแค่ไฟล์ .c, .cpp, .py และ .java เท่านั้นที่สามารถอัพโหลดได้.";
+            echo "<div class='alert alert-danger' role='alert'>ขออภัย, เพียงแค่ไฟล์ .c, .cpp, .py และ .java เท่านั้นที่สามารถอัพโหลดได้.</div>";
             $uploadOk = 0;
         }
 
         // ตรวจสอบชื่อไฟล์ว่ามีการต่อท้ายด้วย _labN.c หรือไม่
-        if (!preg_match('/_lab\d+\.' . $fileType . '$/', $fileName)) {
-            echo "ขออภัย, ชื่อไฟล์ต้องมีการต่อท้ายด้วย _labN." . $fileType . " (N เป็นตัวเลข).";
-            $uploadOk = 0;
-        }
+        // if (!preg_match('/_lab\d+\.' . $fileType . '$/', $fileName)) {
+        //     echo "<div class='alert alert-danger' role='alert'>ขออภัย, ชื่อไฟล์ต้องมีการต่อท้ายด้วย _labN." . $fileType . " (N เป็นตัวเลข).</div>";
+        //     $uploadOk = 0;
+        // }
 
         // ตรวจสอบว่าไฟล์ถูกอัพโหลดสำเร็จหรือไม่
         if ($uploadOk == 1) {
+            // สร้างชื่อไฟล์ใหม่ตามรูปแบบ รหัสนักศึกษา_เลขLab.นามสกุล
+            $newFileName = $student_id . "_" . $lab_number . "." . $fileType;
+            $target_file = $target_dir . $newFileName;
+
             if (move_uploaded_file($_FILES["fileToUpload"]["tmp_name"], $target_file)) {
-                echo "ไฟล์ ". htmlspecialchars($fileName) . " ได้รับการอัพโหลดแล้ว.";
-                echo " วิชาที่เลือก: " . htmlspecialchars($course);
+                echo "<div class='alert alert-success' role='alert'>ไฟล์ " . htmlspecialchars($newFileName) . " ได้รับการอัพโหลดแล้ว.</div>";
+                echo "<div class='alert alert-info' role='alert'>วิชาที่เลือก: " . htmlspecialchars($course) . "</div>";
             } else {
-                echo "เกิดข้อผิดพลาดในการอัพโหลดไฟล์ของคุณ.";
+                echo "<div class='alert alert-danger' role='alert'>เกิดข้อผิดพลาดในการอัพโหลดไฟล์ของคุณ.</div>";
             }
         }
     }
@@ -64,27 +76,48 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 ?>
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>อัพโหลดไฟล์</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload File</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
 <body>
-    <h1>อัพโหลดไฟล์</h1>
-    <form action="student_lab.php" method="post" enctype="multipart/form-data">
-        รหัสผ่าน: <input type="password" name="password" id="password" required>
-        <br>
-        เลือกวิชา:
-        <select name="course" required>
-            <option value="">-- เลือกวิชา --</option>
-            <option value="ENGCC304">ENGCC304 Computer Programming</option>
-            <option value="ENGCE174">ENGCE174 Com Pro for Com Eng</option>
-            <option value="ENGCE117">ENGCE117 OOP</option>
-        </select>
-        <br>
-        เลือกไฟล์เพื่ออัพโหลด:
-        <input type="file" name="fileToUpload" id="fileToUpload" required>
-        <br>
-        <input type="submit" value="อัพโหลดไฟล์" name="submit">
-    </form>
+    <div class="container mt-4">
+        <h1 class="mb-4">Upload File</h1>
+        <form action="student_lab.php" method="post" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="password">รหัสผ่าน</label>
+                <input type="password" class="form-control" id="password" name="password" required>
+            </div>
+            <div class="form-group">
+                <label for="student_id">รหัสนักศึกษา</label>
+                <input type="text" class="form-control" id="student_id" name="student_id" required>
+            </div>
+            <div class="form-group">
+                <label for="lab_number">เลข Lab</label>
+                <input type="text" class="form-control" id="lab_number" name="lab_number" required>
+            </div>
+            <div class="form-group">
+                <label for="course">เลือกวิชา</label>
+                <select class="form-control" id="course" name="course" required>
+                    <option value="">-- เลือกวิชา --</option>
+                    <option value="ENGCC304">ENGCC304 Computer Programming</option>
+                    <option value="ENGCE174">ENGCE174 Computer Programming for Computer Engineering</option>
+                    <option value="ENGCE117">ENGCE117 Object-oriented Programming</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="fileToUpload">เลือกไฟล์เพื่ออัพโหลด</label>
+                <input type="file" class="form-control-file" id="fileToUpload" name="fileToUpload" required>
+            </div>
+            <button type="submit" class="btn btn-primary">อัพโหลดไฟล์</button>
+        </form>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>
