@@ -2,31 +2,76 @@
 // เริ่มเซสชัน
 session_start();
 
-// ตรวจสอบว่ามีการส่งข้อมูลผ่านฟอร์มหรือไม่
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // รับค่าจากฟอร์ม
-    $input_username = $_POST['username'];
-    $input_password = $_POST['password'];
+// เชื่อมต่อฐานข้อมูล
+function loadEnv($path) {
+    if (!file_exists($path)) {
+        throw new Exception(".env file not found at $path");
+    }
 
-    // ตั้งค่าชื่อผู้ใช้และรหัสผ่าน (ตัวอย่าง)
-    $registered_users = [
-        'student1' => 'password123',
-        'student2' => 'password456',
-        // เพิ่มชื่อผู้ใช้และรหัสผ่านอื่น ๆ ตามต้องการ
-    ];
+    $envVars = [];
+    $lines = file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
 
-    // ตรวจสอบชื่อผู้ใช้และรหัสผ่าน
-    if (array_key_exists($input_username, $registered_users) && $registered_users[$input_username] === $input_password) {
-        // ตั้งค่าเซสชันสำหรับการเข้าสู่ระบบ
-        $_SESSION['student_logged_in'] = true;
-        $_SESSION['username'] = $input_username;
+    foreach ($lines as $line) {
+        if (strpos(trim($line), '#') === 0 || strpos($line, '=') === false) {
+            continue;
+        }
 
-        // เปลี่ยนเส้นทางไปยังหน้า student_dashboard.php
-        header('Location: student_dashboard.php');
-        exit();
-    } else {
-        // แจ้งเตือนผู้ใช้ว่าชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง
-        $error_message = "ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง.";
+        list($key, $value) = explode('=', $line, 2);
+        $envVars[trim($key)] = trim($value);
+    }
+
+    return $envVars;
+}
+
+try {
+    $env = loadEnv(__DIR__ . '/.env');
+    $conn = new mysqli($env['DB_HOST'], $env['DB_USERNAME'], $env['DB_PASSWORD'], $env['DB_NAME']);
+    
+    if ($conn->connect_error) {
+        throw new Exception("Connection failed: " . $conn->connect_error);
+    }
+
+    // ตรวจสอบว่ามีการส่งข้อมูลผ่านฟอร์มหรือไม่
+    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+        // รับค่าจากฟอร์ม
+        $input_email = $_POST['email'];
+        $input_password = $_POST['password'];
+
+        // ตรวจสอบอีเมลในฐานข้อมูล
+        $sql_check = "SELECT id, password FROM student WHERE email = ?";
+        $stmt_check = $conn->prepare($sql_check);
+        $stmt_check->bind_param("s", $input_email);
+        $stmt_check->execute();
+        $stmt_check->store_result();
+        $stmt_check->bind_result($user_id, $hashed_password);
+        $stmt_check->fetch();
+
+        if ($stmt_check->num_rows > 0) {
+            // อีเมลถูกต้อง
+            if (password_verify($input_password, $hashed_password)) {
+                // ตั้งค่าเซสชันสำหรับการเข้าสู่ระบบ
+                $_SESSION['student_logged_in'] = true;
+                $_SESSION['user_email'] = $input_email; // ใช้อีเมลของผู้ใช้
+
+                // เปลี่ยนเส้นทางไปยังหน้า student_dashboard.php
+                header('Location: student_dashboard.php');
+                exit();
+            } else {
+                // รหัสผ่านไม่ถูกต้อง
+                $error_message = "รหัสผ่านไม่ถูกต้อง.";
+            }
+        } else {
+            // อีเมลไม่ถูกต้อง
+            $error_message = "ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง.";
+        }
+
+        $stmt_check->close();
+    }
+} catch (Exception $e) {
+    $error_message = $e->getMessage();
+} finally {
+    if (isset($conn) && $conn instanceof mysqli) {
+        $conn->close();
     }
 }
 ?>
@@ -49,8 +94,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <?php endif; ?>
         <form method="POST" action="">
             <div class="form-group">
-                <label for="username">Username</label>
-                <input type="text" class="form-control" id="username" name="username" required>
+                <label for="email">Email Address</label>
+                <input type="email" class="form-control" id="email" name="email" required>
             </div>
             <div class="form-group">
                 <label for="password">Password</label>
@@ -60,6 +105,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         </form>
         <div class="mt-3">
             <a href="register.php" class="btn btn-secondary">Register</a>
+            <a href="forgot_password.php" class="btn btn-link">Forgot Password?</a>
         </div>
     </div>
 

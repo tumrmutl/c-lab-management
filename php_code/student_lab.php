@@ -1,4 +1,65 @@
 <?php
+session_start();
+
+// ตรวจสอบการเข้าสู่ระบบ
+if (!isset($_SESSION['student_logged_in']) || $_SESSION['student_logged_in'] !== true) {
+    header('Location: index.php');
+    exit();
+}
+
+// ฟังก์ชันเพื่อดึง student_id จาก email
+function getStudentIdByEmail($conn, $email) {
+    $sql = "SELECT student_id FROM student WHERE email = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("s", $email);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $student = $result->fetch_assoc();
+    return $student ? $student['student_id'] : null;
+}
+
+// ฟังก์ชันเพื่อโหลดการตั้งค่าฐานข้อมูลจากไฟล์ .env
+function loadEnv($path) {
+    if (!file_exists($path)) {
+        throw new Exception(".env file not found at $path");
+    }
+
+    $envVars = [];
+    $lines = file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+
+    foreach ($lines as $line) {
+        if (strpos(trim($line), '#') === 0 || strpos($line, '=') === false) {
+            continue;
+        }
+
+        list($key, $value) = explode('=', $line, 2);
+        $envVars[trim($key)] = trim($value);
+    }
+
+    return $envVars;
+}
+
+try {
+    $env = loadEnv(__DIR__ . '/.env');
+    $conn = new mysqli($env['DB_HOST'], $env['DB_USERNAME'], $env['DB_PASSWORD'], $env['DB_NAME']);
+
+    if ($conn->connect_error) {
+        throw new Exception("Connection failed: " . $conn->connect_error);
+    }
+
+    // ดึงรหัสนักเรียนจากเซสชัน
+    $user_email = $_SESSION['user_email'];
+    $student_id = getStudentIdByEmail($conn, $user_email);
+
+    if (!$student_id) {
+        throw new Exception("Student ID not found.");
+    }
+
+    $conn->close();
+} catch (Exception $e) {
+    $error_message = $e->getMessage();
+}
+
 // กำหนดโฟลเดอร์ที่ใช้เก็บไฟล์
 $target_dir = "student_c/";
 $uploadOk = 1;
@@ -19,11 +80,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         
         // ตรวจสอบว่ารหัสผ่านถูกต้องหรือไม่
         if ($enteredPassword !== $validPassword) {
-            echo "<div class='alert alert-danger' role='alert'>รหัสผ่านไม่ถูกต้อง.</div>";
+            $message = "<div class='alert alert-danger' role='alert'>รหัสผ่านไม่ถูกต้อง.</div>";
             $uploadOk = 0;
         }
     } else {
-        echo "<div class='alert alert-danger' role='alert'>กรุณากรอกรหัสผ่าน.</div>";
+        $message = "<div class='alert alert-danger' role='alert'>กรุณากรอกรหัสผ่าน.</div>";
         $uploadOk = 0;
     }
     
@@ -31,16 +92,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (isset($_POST['course'])) {
         $course = $_POST['course'];
     } else {
-        echo "<div class='alert alert-danger' role='alert'>กรุณาเลือกวิชา.</div>";
+        $message = "<div class='alert alert-danger' role='alert'>กรุณาเลือกวิชา.</div>";
         $uploadOk = 0;
     }
 
-    // ตรวจสอบว่ามีการกรอกข้อมูลรหัสนักศึกษาและเลข Lab หรือไม่
-    if (isset($_POST['student_id']) && isset($_POST['lab_number'])) {
-        $student_id = $_POST['student_id'];
+    // ตรวจสอบว่ามีการกรอกข้อมูลเลข Lab หรือไม่
+    if (isset($_POST['lab_number'])) {
         $lab_number = $_POST['lab_number'];
     } else {
-        echo "<div class='alert alert-danger' role='alert'>กรุณากรอกรหัสนักศึกษาและเลข Lab.</div>";
+        $message = "<div class='alert alert-danger' role='alert'>กรุณากรอกเลข Lab.</div>";
         $uploadOk = 0;
     }
 
@@ -48,15 +108,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if ($uploadOk == 1) {
         // ตรวจสอบนามสกุลไฟล์
         if (!in_array($fileType, ['c', 'cpp', 'py', 'java'])) {
-            echo "<div class='alert alert-danger' role='alert'>ขออภัย, เพียงแค่ไฟล์ .c, .cpp, .py และ .java เท่านั้นที่สามารถอัพโหลดได้.</div>";
+            $message = "<div class='alert alert-danger' role='alert'>ขออภัย, เพียงแค่ไฟล์ .c, .cpp, .py และ .java เท่านั้นที่สามารถอัพโหลดได้.</div>";
             $uploadOk = 0;
         }
-
-        // ตรวจสอบชื่อไฟล์ว่ามีการต่อท้ายด้วย _labN.c หรือไม่
-        // if (!preg_match('/_lab\d+\.' . $fileType . '$/', $fileName)) {
-        //     echo "<div class='alert alert-danger' role='alert'>ขออภัย, ชื่อไฟล์ต้องมีการต่อท้ายด้วย _labN." . $fileType . " (N เป็นตัวเลข).</div>";
-        //     $uploadOk = 0;
-        // }
 
         // ตรวจสอบว่าไฟล์ถูกอัพโหลดสำเร็จหรือไม่
         if ($uploadOk == 1) {
@@ -65,10 +119,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $target_file = $target_dir . $newFileName;
 
             if (move_uploaded_file($_FILES["fileToUpload"]["tmp_name"], $target_file)) {
-                echo "<div class='alert alert-success' role='alert'>ไฟล์ " . htmlspecialchars($newFileName) . " ได้รับการอัพโหลดแล้ว.</div>";
-                echo "<div class='alert alert-info' role='alert'>วิชาที่เลือก: " . htmlspecialchars($course) . "</div>";
+                $message = "<div class='alert alert-success' role='alert'>ไฟล์ " . htmlspecialchars($newFileName) . " ได้รับการอัพโหลดแล้ว.</div>";
+                $message .= "<div class='alert alert-info' role='alert'>วิชาที่เลือก: " . htmlspecialchars($course) . "</div>";
             } else {
-                echo "<div class='alert alert-danger' role='alert'>เกิดข้อผิดพลาดในการอัพโหลดไฟล์ของคุณ.</div>";
+                $message = "<div class='alert alert-danger' role='alert'>เกิดข้อผิดพลาดในการอัพโหลดไฟล์ของคุณ.</div>";
             }
         }
     }
@@ -84,16 +138,25 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
 <body>
+    <?php include 'student_menu.php'; ?>
+
     <div class="container mt-4">
         <h1 class="mb-4">Upload File</h1>
+        
+        <?php if (isset($error_message)): ?>
+            <div class="alert alert-danger" role="alert">
+                <?php echo htmlspecialchars($error_message); ?>
+            </div>
+        <?php endif; ?>
+
+        <?php if (isset($message)): ?>
+            <?php echo $message; ?>
+        <?php endif; ?>
+
         <form action="student_lab.php" method="post" enctype="multipart/form-data">
             <div class="form-group">
                 <label for="password">รหัสผ่าน</label>
                 <input type="password" class="form-control" id="password" name="password" required>
-            </div>
-            <div class="form-group">
-                <label for="student_id">รหัสนักศึกษา</label>
-                <input type="text" class="form-control" id="student_id" name="student_id" required>
             </div>
             <div class="form-group">
                 <label for="lab_number">เลข Lab</label>
@@ -121,3 +184,4 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>
+
