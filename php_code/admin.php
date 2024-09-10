@@ -1,6 +1,7 @@
 <?php
-// เริ่มเซสชัน
-session_start();
+// รหัสผ่านส่วนตัวที่ฝังในโค้ด
+$admin_username = "admin";
+$admin_password = "113333";
 
 // ตรวจสอบว่ามีการส่งข้อมูลผ่านฟอร์มหรือไม่
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -8,24 +9,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $input_username = $_POST['username'];
     $input_password = $_POST['password'];
 
-    // ตั้งค่าชื่อผู้ใช้และรหัสผ่าน (ตัวอย่าง)
-    $registered_users = [
-        'student1' => 'password123',
-        'student2' => 'password456',
-        // เพิ่มชื่อผู้ใช้และรหัสผ่านอื่น ๆ ตามต้องการ
-    ];
-
     // ตรวจสอบชื่อผู้ใช้และรหัสผ่าน
-    if (array_key_exists($input_username, $registered_users) && $registered_users[$input_username] === $input_password) {
-        // ตั้งค่าเซสชันสำหรับการเข้าสู่ระบบ
-        $_SESSION['student_logged_in'] = true;
-        $_SESSION['username'] = $input_username;
-
-        // เปลี่ยนเส้นทางไปยังหน้า student_dashboard.php
-        header('Location: student_dashboard.php');
+    if ($input_username === $admin_username && $input_password === $admin_password) {
+        // ตั้งค่า cookie สำหรับการเข้าสู่ระบบ
+        setcookie('admin_logged_in', 'true', time() + 3600, '/'); // Cookie valid for 1 hour
+        
+        // เปลี่ยนเส้นทางไปยังหน้า admin_dashboard.php
+        header('Location: admin_dashboard.php');
         exit();
     } else {
-        // แจ้งเตือนผู้ใช้ว่าชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง
+        // แจ้งเตือนผู้ใช้ว่ารหัสผ่านไม่ถูกต้อง
         $error_message = "ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง.";
     }
 }
@@ -36,12 +29,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Login</title>
+    <title>Admin Login</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
 <body>
     <div class="container mt-5">
-        <h2 class="mb-4">Student Login</h2>
+        <h2 class="mb-4">Admin Login</h2>
         <?php if (isset($error_message)): ?>
             <div class="alert alert-danger" role="alert">
                 <?php echo htmlspecialchars($error_message); ?>
@@ -58,9 +51,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             </div>
             <button type="submit" class="btn btn-primary">Login</button>
         </form>
-        <div class="mt-3">
-            <a href="register.php" class="btn btn-secondary">Register</a>
-        </div>
     </div>
 
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>

@@ -17,6 +17,9 @@
             <li class="nav-item">
                 <a class="nav-link" href="admin_view_duplicate.php">ตรวจการคัดลอกไฟล์</a>
             </li>
+            <li class="nav-item">
+                <a class="nav-link" href="logout.php">Logout</a>
+            </li>
         </ul>
     </div>
 </nav>
