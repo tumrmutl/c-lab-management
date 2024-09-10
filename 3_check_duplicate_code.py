@@ -10,18 +10,18 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from transformers import RobertaTokenizer, RobertaModel
 import torch
-from tqdm import tqdm  # Import tqdm
+from tqdm import tqdm
 
-# ดึงรายชื่อไฟล์จากโฟลเดอร์
+# Define folder path and list files
 folder_path = 'student_code'
 files = [f for f in os.listdir(folder_path) if f.endswith('.c')]
 
-# ฟังก์ชันสำหรับอ่านไฟล์
+# Function to read file content
 def read_file(file_path):
     with open(file_path, 'r', encoding='utf-8') as file:
         return file.read()
 
-# ฟังก์ชันในการสร้างแฮชของเนื้อหาของไฟล์
+# Function to hash file content
 def hash_file(file_path):
     hasher = hashlib.md5()
     with open(file_path, 'rb') as file:
@@ -29,20 +29,20 @@ def hash_file(file_path):
             hasher.update(chunk)
     return hasher.hexdigest()
 
-# ฟังก์ชันทำความสะอาดโค้ด
+# Function to normalize code by removing comments and extra whitespace
 def normalize_code(code):
     code = re.sub(r'//.*|/\*.*?\*/', '', code, flags=re.DOTALL)
     code = re.sub(r'\s+', ' ', code).strip()
     return code
 
-# ฟังก์ชันเปรียบเทียบ Tokenization
+# Function to compare tokenization
 def compare_tokenization(code1, code2):
     tokens1 = [token.string for token in tokenize.generate_tokens(StringIO(code1).readline) if token.type in (tokenize.NAME, tokenize.NUMBER)]
     tokens2 = [token.string for token in tokenize.generate_tokens(StringIO(code2).readline) if token.type in (tokenize.NAME, tokenize.NUMBER)]
     vectorizer = CountVectorizer().fit_transform([' '.join(tokens1), ' '.join(tokens2)])
     return cosine_similarity(vectorizer.toarray())[0, 1] * 100
 
-# ฟังก์ชันเปรียบเทียบ Embeddings ด้วย CodeBERT
+# Function to get embeddings and compare them
 tokenizer = RobertaTokenizer.from_pretrained('microsoft/codebert-base')
 model = RobertaModel.from_pretrained('microsoft/codebert-base')
 
@@ -55,22 +55,22 @@ def get_code_embedding(code):
 def compare_embeddings(code1, code2):
     return cosine_similarity(get_code_embedding(code1), get_code_embedding(code2))[0, 0] * 100
 
-# ฟังก์ชันการเปรียบเทียบ TF-IDF
+# Function to compare TF-IDF vectors
 def compare_tfidf(code1, code2):
     vectorizer = TfidfVectorizer()
     vectors = vectorizer.fit_transform([code1, code2])
     return cosine_similarity(vectors)[0, 1] * 100
 
-# ฟังก์ชันเพื่อแยกไฟล์ตาม Lab
+# Function to group files by lab ID
 def group_files_by_lab(files):
     lab_groups = {}
     for file in files:
         parts = file.split('_')
-        lab_id = parts[1].split('.')[0]  # แก้ไขเพื่อให้ได้ Lab ID ถูกต้อง
+        lab_id = parts[1].split('.')[0]
         lab_groups.setdefault(lab_id, []).append(file)
     return lab_groups
 
-# ฟังก์ชันเปรียบเทียบไฟล์
+# Function to compare files
 def compare_files(file_path1, file_path2):
     code1, code2 = read_file(file_path1), read_file(file_path2)
     normalized_content1, normalized_content2 = normalize_code(code1), normalize_code(code2)
@@ -84,32 +84,31 @@ def compare_files(file_path1, file_path2):
         'tfidf_similarity': compare_tfidf(code1, code2)
     }
 
-# ฟังก์ชันเปรียบเทียบไฟล์ในกลุ่ม
+# Function to compare files in groups
 def compare_files_in_groups(lab_groups):
     similarities = []
     
-    # สร้างแถบความก้าวหน้าด้วย tqdm
     for lab_id, file_list in tqdm(lab_groups.items(), desc="Processing labs"):
         num_files = len(file_list)
-        # ตรวจสอบการเปรียบเทียบคู่ไฟล์ทั้งหมดในแต่ละกลุ่ม
         for i in range(num_files):
             for j in range(i + 1, num_files):
                 file1_path, file2_path = os.path.join(folder_path, file_list[i]), os.path.join(folder_path, file_list[j])
+                file1_name = file_list[i].split('_')[0]  # Extracting the base file name
+                file2_name = file_list[j].split('_')[0]  # Extracting the base file name
                 similarities.append({
-                    'file1': file_list[i],
-                    'file2': file_list[j],
+                    'file1': file1_name,
+                    'file2': file2_name,
                     'lab_id': lab_id,
-                    **compare_files(file1_path, file2_path)  # Corrected here
+                    **compare_files(file1_path, file2_path)
                 })
     
     return similarities
 
-
-# แยกไฟล์ตาม Lab และเปรียบเทียบ
+# Group files by lab and compare
 lab_groups = group_files_by_lab(files)
 similarities = compare_files_in_groups(lab_groups)
 
-# บันทึกผลลัพธ์ลงในไฟล์ CSV
+# Save results to CSV
 csv_file_path = 'result_duplicate.csv'
 with open(csv_file_path, mode='w', newline='', encoding='utf-8') as file:
     writer = csv.writer(file)
