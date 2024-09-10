@@ -14,6 +14,9 @@
             <li class="nav-item">
                 <a class="nav-link" href="show_student_all_lab.php">ข้อมูลส่ง Lab</a>
             </li>
+            <li class="nav-item">
+                <a class="nav-link" href="admin_view_duplicate.php">ตรวจการคัดลอกไฟล์</a>
+            </li>
         </ul>
     </div>
 </nav>
