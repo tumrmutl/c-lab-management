@@ -4,10 +4,13 @@
     <div class="collapse navbar-collapse">
         <ul class="navbar-nav mr-auto">
             <li class="nav-item">
-                <a class="nav-link" href="profile.php">Profile</a>
+                <a class="nav-link" href="student_profile.php">Profile</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="student_lab.php">Upload Lab</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="show_student_score.php">View Lab</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="logout.php">Logout</a>

@@ -69,6 +69,7 @@ $file2_full = "{$file2}_{$lab_id}.c";
             </div>
         </div>
     </div>
-
+<!-- Include the footer -->
+<?php include 'footer.php'; ?>
 </body>
 </html>

@@ -104,11 +104,12 @@ try {
             <button type="submit" class="btn btn-primary">Login</button>
         </form>
         <div class="mt-3">
-            <a href="register.php" class="btn btn-secondary">Register</a>
-            <a href="forgot_password.php" class="btn btn-link">Forgot Password?</a>
+            <a href="register.php" class="btn btn-secondary" target="_blank">Register</a>
+            <a href="forgot_password.php" class="btn btn-link" target="_blank" Password?</a>
         </div>
     </div>
-
+<!-- Include the footer -->
+<?php include 'footer.php'; ?>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>

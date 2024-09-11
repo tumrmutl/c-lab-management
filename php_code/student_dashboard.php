@@ -182,9 +182,6 @@ function getPendingLabFiles($directory, $student_id) {
     return $file_paths;
 }
 
-
-
-
 try {
     $env = loadEnv(__DIR__ . '/.env');
     $conn = new mysqli($env['DB_HOST'], $env['DB_USERNAME'], $env['DB_PASSWORD'], $env['DB_NAME']);
@@ -223,134 +220,158 @@ try {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Dashboard</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .card {
+            margin-bottom: 20px;
+        }
+        .table thead th {
+            background-color: #f8f9fa;
+        }
+        .status-correct {
+            color: #28a745;
+            font-weight: bold;
+        }
+        .status-incorrect {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        .status-pending {
+            color: #ffc107;
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
     <?php include 'student_menu.php'; ?>
 
     <div class="container mt-4">
-        <h2>Student Dashboard</h2>
+        <h2 class="mb-4 text-center">Student Dashboard</h2>
+        <h3 class="mb-4 text-center"><?php echo $student_id . ' | ' . $user_email ; ?></h3>
 
+        <!-- Display Error Message if Exists -->
         <?php if (isset($error_message)): ?>
             <div class="alert alert-danger" role="alert">
                 <?php echo htmlspecialchars($error_message); ?>
             </div>
         <?php endif; ?>
 
-        <h3 class="mt-4">Lab Overview</h3>
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>Lab ID</th>
-                    <th>Total Submissions</th>
-                    <th>Incorrect Submissions</th>
-                    <th>Correct Submissions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($lab_overview_details as $lab): ?>
-                    <tr>
-                        <td><?php echo htmlspecialchars($lab['lab_id']); ?></td>
-                        <td><?php echo htmlspecialchars($lab['total_submissions']); ?></td>
-                        <td><?php echo htmlspecialchars($lab['incorrect_submissions']); ?></td>
-                        <td><?php echo htmlspecialchars($lab['correct_submissions']); ?></td>
-                    </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
-
-        <h3 class="mt-4">Your Lab Submission Details</h3>
-
-        <h4>Labs Not Submitted</h4>
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>Lab ID</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php if (!empty($student_lab_details['not_submitted_labs'])): ?>
-                    <?php foreach ($student_lab_details['not_submitted_labs'] as $lab_id): ?>
+        <!-- Lab Overview Section -->
+        <div class="card">
+            <div class="card-header">
+                <h4>Lab Overview</h4>
+            </div>
+            <div class="card-body">
+                <table class="table table-borderless">
+                    <thead>
                         <tr>
-                            <td><?php echo htmlspecialchars($lab_id); ?></td>
+                            <th>Lab ID</th>
+                            <th>Total Submissions</th>
+                            <th>Correct</th>
+                            <th>Incorrect</th>
                         </tr>
-                    <?php endforeach; ?>
-                <?php else: ?>
-                    <tr>
-                        <td>No Labs Not Submitted</td>
-                    </tr>
-                <?php endif; ?>
-            </tbody>
-        </table>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($lab_overview_details as $lab): ?>
+                            <tr>
+                                <td><?php echo htmlspecialchars($lab['lab_id']); ?></td>
+                                <td><?php echo htmlspecialchars($lab['total_submissions']); ?></td>
+                                <td class="status-correct"><?php echo htmlspecialchars($lab['correct_submissions']); ?></td>
+                                <td class="status-incorrect"><?php echo htmlspecialchars($lab['incorrect_submissions']); ?></td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
 
-        <h4>Labs Submitted But Incorrect</h4>
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>Lab ID</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php if (!empty($student_lab_details['submitted_incorrect_labs'])): ?>
-                    <?php foreach ($student_lab_details['submitted_incorrect_labs'] as $lab_id): ?>
-                        <tr>
-                            <td><?php echo htmlspecialchars($lab_id); ?></td>
-                        </tr>
-                    <?php endforeach; ?>
-                <?php else: ?>
-                    <tr>
-                        <td>No Labs Submitted But Incorrect</td>
-                    </tr>
-                <?php endif; ?>
-            </tbody>
-        </table>
+        <!-- Student Lab Submission Details -->
+        <div class="row">
+            <!-- Not Submitted Labs -->
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h4>Labs Not Submitted</h4>
+                    </div>
+                    <div class="card-body">
+                        <?php if (!empty($student_lab_details['not_submitted_labs'])): ?>
+                            <ul class="list-group">
+                                <?php foreach ($student_lab_details['not_submitted_labs'] as $lab_id): ?>
+                                    <li class="list-group-item status-pending"><?php echo htmlspecialchars($lab_id); ?></li>
+                                <?php endforeach; ?>
+                            </ul>
+                        <?php else: ?>
+                            <p class="text-muted">No labs pending submission</p>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </div>
 
-        <h4>Labs Submitted and Correct</h4>
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>Lab ID</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php if (!empty($student_lab_details['submitted_correct_labs'])): ?>
-                    <?php foreach ($student_lab_details['submitted_correct_labs'] as $lab_id): ?>
-                        <tr>
-                            <td><?php echo htmlspecialchars($lab_id); ?></td>
-                        </tr>
-                    <?php endforeach; ?>
-                <?php else: ?>
-                    <tr>
-                        <td>No Labs Submitted and Correct</td>
-                    </tr>
-                <?php endif; ?>
-            </tbody>
-        </table>
+            <!-- Incorrect Labs -->
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h4>Labs Submitted Incorrectly</h4>
+                    </div>
+                    <div class="card-body">
+                        <?php if (!empty($student_lab_details['submitted_incorrect_labs'])): ?>
+                            <ul class="list-group">
+                                <?php foreach ($student_lab_details['submitted_incorrect_labs'] as $lab_id): ?>
+                                    <li class="list-group-item status-incorrect"><?php echo htmlspecialchars($lab_id); ?></li>
+                                <?php endforeach; ?>
+                            </ul>
+                        <?php else: ?>
+                            <p class="text-muted">No incorrect submissions</p>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </div>
 
-        <h4 class="mt-4">Labs Uploaded and Pending Review</h4>
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>File Link</th>
-                </tr>
-            </thead>
-            <tbody>
+            <!-- Correct Labs -->
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h4>Labs Submitted Correctly</h4>
+                    </div>
+                    <div class="card-body">
+                        <?php if (!empty($student_lab_details['submitted_correct_labs'])): ?>
+                            <ul class="list-group">
+                                <?php foreach ($student_lab_details['submitted_correct_labs'] as $lab_id): ?>
+                                    <li class="list-group-item status-correct"><?php echo htmlspecialchars($lab_id); ?></li>
+                                <?php endforeach; ?>
+                            </ul>
+                        <?php else: ?>
+                            <p class="text-muted">No correct submissions</p>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pending Lab Files Section -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h4>Your Pending Lab Files</h4>
+            </div>
+            <div class="card-body">
                 <?php if (!empty($pending_lab_files)): ?>
-                    <?php foreach ($pending_lab_files as $file_link): ?>
-                        <tr>
-                            <td><a href="<?php echo htmlspecialchars($file_link); ?>" target="_blank"><?php echo htmlspecialchars($file_link); ?></a></td>
-                        </tr>
-                    <?php endforeach; ?>
+                    <ul class="list-group">
+                        <?php foreach ($pending_lab_files as $file_url): ?>
+                            <li class="list-group-item">
+                                <a href="<?php echo htmlspecialchars($file_url); ?>" target="_blank"><?php echo htmlspecialchars(basename($file_url)); ?></a>
+                            </li>
+                        <?php endforeach; ?>
+                    </ul>
                 <?php else: ?>
-                    <tr>
-                        <td>No Labs Uploaded and Pending Review</td>
-                    </tr>
+                    <p class="text-muted">No pending lab files for review.</p>
                 <?php endif; ?>
-            </tbody>
-        </table>
+            </div>
+        </div>
     </div>
 
+    <!-- Include the footer -->
+    <?php include 'footer.php'; ?>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>
