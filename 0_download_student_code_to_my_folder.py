@@ -4,32 +4,50 @@ from tqdm import tqdm
 
 def download_file(url, local_filename):
     """ดาวน์โหลดไฟล์จาก URL และบันทึกเป็นไฟล์ในเครื่อง พร้อมแสดง Progress Bar"""
-    # ทำการร้องขอแบบ streaming เพื่ออ่านข้อมูลเป็น chunk
     with requests.get(url, stream=True) as r:
         r.raise_for_status()
-        # ดึงขนาดของไฟล์เพื่อใช้ใน Progress Bar
         total_size = int(r.headers.get('content-length', 0))
         chunk_size = 8192  # ขนาดของแต่ละ chunk (8 KB)
 
-        # แสดง Progress Bar ขณะดาวน์โหลดไฟล์
         with tqdm(total=total_size, unit='iB', unit_scale=True, desc=local_filename) as pbar:
             with open(local_filename, 'wb') as f:
                 for chunk in r.iter_content(chunk_size=chunk_size):
-                    if chunk:  # ตรวจสอบว่ามีข้อมูลใน chunk
+                    if chunk:
                         f.write(chunk)
-                        pbar.update(len(chunk))  # อัปเดต Progress Bar ตามจำนวนข้อมูลที่ดาวน์โหลด
+                        pbar.update(len(chunk))
+
+def save_subject_to_file(subject):
+    """บันทึกรหัสวิชาลงในไฟล์ subject.dat"""
+    with open('subject.dat', 'w') as f:
+        f.write(subject)
 
 def main():
-    list_files_url = 'https://thailandfxwarrior.com/lab/show_student_lab.php'
-    target_folder = 'student_code'
+    # เลือกรหัสวิชาที่ต้องการตรวจ
+    subject = input("กรุณาเลือกรหัสวิชา (ENGCC304, ENGCE117, ENGCE174): ")
 
+    # บันทึกรหัสวิชาลงใน subject.dat
+    save_subject_to_file(subject)
+
+    # URL ที่จะใช้เพื่อดึงข้อมูลไฟล์พร้อมส่งตัวแปร subject
+    list_files_url = f'https://thailandfxwarrior.com/lab/show_student_lab.php?subject={subject}'
+    
+    # โฟลเดอร์เป้าหมายตามวิชาที่เลือก
+    target_folder = os.path.join('student_code', subject)
+
+    # ตรวจสอบและสร้างโฟลเดอร์ถ้ายังไม่มี
     if not os.path.exists(target_folder):
         os.makedirs(target_folder)
 
-    # ดึงรายชื่อไฟล์จาก PHP
+    # ดึงรายชื่อไฟล์จาก PHP โดยใช้รหัสวิชา
     response = requests.get(list_files_url)
     response.raise_for_status()
-    file_list = response.json()
+
+    # ตรวจสอบว่าการตอบกลับเป็น JSON หรือไม่
+    try:
+        file_list = response.json()
+    except ValueError:
+        print(f"Error: Response is not valid JSON. Received: {response.text}")
+        return
 
     # ดาวน์โหลดไฟล์ทั้งหมด
     for file_url in file_list:

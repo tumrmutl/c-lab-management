@@ -1,0 +1,4 @@
+Lab ID,File 1,File 2,Similarity (%),Hash Similarity (%),Structural Similarity (%),Token Similarity (%),Embedding Similarity (%),TF-IDF Similarity (%)
+lab1,673333333-3,673-3,100.00,100.00,100.00,100.00,100.00,100.00
+lab1,673333333-3,671-1,100.00,100.00,100.00,100.00,100.00,100.00
+lab1,673-3,671-1,100.00,100.00,100.00,100.00,100.00,100.00

@@ -28,7 +28,7 @@ def upload_data(data, upload_url):
     except requests.RequestException as e:
         print(f"\nRequest failed: {e}")
 
-def process_csv_file(csv_file, upload_url):
+def process_csv_file(csv_file):
     """Process CSV file and convert it to a JSON format."""
     print(f"Processing file: {csv_file}")
     try:
@@ -56,33 +56,10 @@ def process_csv_file(csv_file, upload_url):
     except IOError as e:
         print(f"\nFailed to open file: {e}")
 
-def get_subject_code():
-    """Read subject code from subject.dat file."""
-    try:
-        with open('subject.dat', 'r') as file:
-            subject_code = file.read().strip()
-            if subject_code:
-                print(f"Subject code found: {subject_code}")
-                return subject_code
-            else:
-                print("No subject code found in subject.dat")
-                return None
-    except IOError as e:
-        print(f"Error reading subject.dat: {e}")
-        return None
-
 def main():
-    subject_code = get_subject_code()
-    if subject_code:
-        # เปลี่ยน path ให้เป็น ./result_duplicate/{subject_code}/result_duplicate.csv
-        result_file = f'./result_duplicate/{subject_code}/result_duplicate.csv'
-        
-        # เพิ่มรหัสวิชาใน URL
-        upload_url = f'https://thailandfxwarrior.com/lab/upload_csv_duplicate.php?subject={subject_code}'
-
-        process_csv_file(result_file, upload_url)
-    else:
-        print("Subject code is missing. Cannot proceed.")
+    result_file = 'result_duplicate.csv'
+    process_csv_file(result_file)
 
 if __name__ == "__main__":
+    upload_url = 'https://thailandfxwarrior.com/lab/upload_csv_duplicate.php'  # เปลี่ยนเป็น endpoint ที่รองรับ JSON
     main()

@@ -12,28 +12,8 @@ from transformers import RobertaTokenizer, RobertaModel
 import torch
 from tqdm import tqdm
 
-# Read subject code from subject.dat
-def read_subject_code(file_path):
-    try:
-        with open(file_path, 'r') as file:
-            subject_code = file.read().strip()
-            return subject_code
-    except IOError as e:
-        print(f"Failed to read subject code from file: {e}")
-        return ''
-
-# Define folder paths
-subject_code = read_subject_code('subject.dat')
-if not subject_code:
-    print("Subject code not found. Exiting.")
-    exit()
-
-folder_path = f'student_code/{subject_code}'
-result_folder = f'result_duplicate/{subject_code}'
-
-# Create result folder if it doesn't exist
-os.makedirs(result_folder, exist_ok=True)
-
+# Define folder path and list files
+folder_path = 'student_code'
 files = [f for f in os.listdir(folder_path) if f.endswith('.c')]
 
 # Function to read file content
@@ -129,7 +109,7 @@ lab_groups = group_files_by_lab(files)
 similarities = compare_files_in_groups(lab_groups)
 
 # Save results to CSV
-csv_file_path = os.path.join(result_folder, 'result_duplicate.csv')
+csv_file_path = 'result_duplicate.csv'
 with open(csv_file_path, mode='w', newline='', encoding='utf-8') as file:
     writer = csv.writer(file)
     writer.writerow(['Lab ID', 'File 1', 'File 2', 'Similarity (%)', 'Hash Similarity (%)', 'Structural Similarity (%)', 'Token Similarity (%)', 'Embedding Similarity (%)', 'TF-IDF Similarity (%)'])

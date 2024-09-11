@@ -20,7 +20,7 @@ function loadEnv($path) {
     return $envVars;
 }
 
-function handleJSONData($data, $conn) {
+function handleJSONData($data, $conn, $tableName) {
     foreach ($data as $row) {
         $std_id = $conn->real_escape_string($row['student id']);
         $lab_id = $conn->real_escape_string($row['lab']);
@@ -28,16 +28,16 @@ function handleJSONData($data, $conn) {
         $teacher_output = $conn->real_escape_string($row['teacher output']);
         $result = $conn->real_escape_string($row['result']);
 
-        $sql_check = "SELECT COUNT(*) FROM LAB WHERE std_id='$std_id' AND lab_id='$lab_id'";
+        $sql_check = "SELECT COUNT(*) FROM $tableName WHERE std_id='$std_id' AND lab_id='$lab_id'";
         $result_check = $conn->query($sql_check);
         $count = $result_check->fetch_array()[0];
 
         if ($count > 0) {
-            $sql = "UPDATE LAB 
+            $sql = "UPDATE $tableName 
                     SET student_output='$student_output', teacher_output='$teacher_output', result='$result'
                     WHERE std_id='$std_id' AND lab_id='$lab_id'";
         } else {
-            $sql = "INSERT INTO LAB (std_id, lab_id, student_output, teacher_output, result)
+            $sql = "INSERT INTO $tableName (std_id, lab_id, student_output, teacher_output, result)
                     VALUES ('$std_id', '$lab_id', '$student_output', '$teacher_output', '$result')";
         }
 
@@ -59,13 +59,20 @@ try {
         throw new Exception("Connection failed: " . $conn->connect_error);
     }
 
+    // Get the subject code from GET parameter
+    $subject_code = isset($_GET['subject']) ? $conn->real_escape_string($_GET['subject']) : '';
+
+    if (empty($subject_code)) {
+        throw new Exception("Subject code not provided");
+    }
+
     // Read raw POST data
     $json = file_get_contents('php://input');
     $data = json_decode($json, true);
 
     if (json_last_error() === JSON_ERROR_NONE) {
         // Handle JSON data
-        $result = handleJSONData($data, $conn);
+        $result = handleJSONData($data, $conn, $subject_code);
         echo json_encode($result);
     } else {
         echo json_encode(['status' => 'error', 'message' => 'Invalid JSON data']);

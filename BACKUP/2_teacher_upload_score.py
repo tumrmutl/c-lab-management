@@ -28,13 +28,13 @@ def upload_data(data, upload_url):
     except requests.RequestException as e:
         print(f"Request failed: {e}")
 
-def process_csv_file(csv_file, upload_url):
+def process_csv_file(csv_file):
     """Process CSV file and convert it to a JSON format."""
     try:
         with open(csv_file, 'r') as file:
             reader = csv.DictReader(file)
             data = list(reader)  # Convert CSV rows to a list of dictionaries
-
+            
         # Convert to JSON format
         json_data = json.dumps(data, indent=4)
 
@@ -47,32 +47,13 @@ def process_csv_file(csv_file, upload_url):
     except IOError as e:
         print(f"Failed to open file: {e}")
 
-def get_subject_code():
-    """Read the subject code from subject.dat file."""
-    try:
-        with open('subject.dat', 'r') as file:
-            subject_code = file.read().strip()
-            return subject_code
-    except IOError as e:
-        print(f"Failed to read subject code: {e}")
-        return None
-
 def main():
-    # Get the subject code from subject.dat
-    subject_code = get_subject_code()
-    if not subject_code:
-        print("Subject code not found. Please check the subject.dat file.")
-        return
-
-    # Construct the upload URL with the subject code
-    upload_url = f'https://thailandfxwarrior.com/lab/upload_csv.php?subject={subject_code}'
-
     # Correct the pattern to match the actual file names
-    pattern = os.path.join(result_folder, f'{subject_code}/results_lab*.csv')
+    pattern = os.path.join(result_folder, 'results_lab*.csv')
     csv_files = glob.glob(pattern)
     
     if not csv_files:
-        print(f"No CSV files found in folder '{result_folder}/{subject_code}' with pattern '{pattern}'.")
+        print(f"No CSV files found with pattern '{pattern}'.")
         return
 
     # Initialize the Progress Bar
@@ -81,9 +62,10 @@ def main():
         step = 100 / num_files if num_files else 100
         
         for i, csv_file in enumerate(csv_files):
-            process_csv_file(csv_file, upload_url)
+            process_csv_file(csv_file)
             # Update the Progress Bar based on percentage completion
             pbar.update(step)
 
 if __name__ == "__main__":
+    upload_url = 'https://thailandfxwarrior.com/lab/upload_csv.php'  # เปลี่ยนเป็น endpoint ที่รองรับ JSON
     main()
