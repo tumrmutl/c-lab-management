@@ -1,13 +1,23 @@
 import os
 import requests
+from tqdm import tqdm
 
 def download_file(url, local_filename):
-    """ดาวน์โหลดไฟล์จาก URL และบันทึกเป็นไฟล์ในเครื่อง"""
+    """ดาวน์โหลดไฟล์จาก URL และบันทึกเป็นไฟล์ในเครื่อง พร้อมแสดง Progress Bar"""
+    # ทำการร้องขอแบบ streaming เพื่ออ่านข้อมูลเป็น chunk
     with requests.get(url, stream=True) as r:
         r.raise_for_status()
-        with open(local_filename, 'wb') as f:
-            for chunk in r.iter_content(chunk_size=8192):
-                f.write(chunk)
+        # ดึงขนาดของไฟล์เพื่อใช้ใน Progress Bar
+        total_size = int(r.headers.get('content-length', 0))
+        chunk_size = 8192  # ขนาดของแต่ละ chunk (8 KB)
+
+        # แสดง Progress Bar ขณะดาวน์โหลดไฟล์
+        with tqdm(total=total_size, unit='iB', unit_scale=True, desc=local_filename) as pbar:
+            with open(local_filename, 'wb') as f:
+                for chunk in r.iter_content(chunk_size=chunk_size):
+                    if chunk:  # ตรวจสอบว่ามีข้อมูลใน chunk
+                        f.write(chunk)
+                        pbar.update(len(chunk))  # อัปเดต Progress Bar ตามจำนวนข้อมูลที่ดาวน์โหลด
 
 def main():
     list_files_url = 'https://thailandfxwarrior.com/lab/show_student_lab.php'

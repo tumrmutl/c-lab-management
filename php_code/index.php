@@ -2,6 +2,17 @@
 // เริ่มเซสชัน
 session_start();
 
+// ฟังก์ชันเพื่อดึง student_id จาก email
+function getStudentIdByEmail($conn, $email) {
+    $sql = "SELECT student_id FROM student WHERE email = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("s", $email);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $student = $result->fetch_assoc();
+    return $student ? $student['student_id'] : null;
+}
+
 // เชื่อมต่อฐานข้อมูล
 function loadEnv($path) {
     if (!file_exists($path)) {
@@ -52,6 +63,9 @@ try {
                 // ตั้งค่าเซสชันสำหรับการเข้าสู่ระบบ
                 $_SESSION['student_logged_in'] = true;
                 $_SESSION['user_email'] = $input_email; // ใช้อีเมลของผู้ใช้
+                $_SESSION['student_id'] = getStudentIdByEmail($conn, $input_email);; // ใช้อีเมลของผู้ใช้
+
+                setcookie('student_logged_in', 'true', time() + 3600, '/'); // Cookie valid for 1 hour
 
                 // เปลี่ยนเส้นทางไปยังหน้า student_dashboard.php
                 header('Location: student_dashboard.php');

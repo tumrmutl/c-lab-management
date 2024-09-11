@@ -1,6 +1,7 @@
 import os
 import subprocess
 import csv
+from tqdm import tqdm
 
 def compile_and_run(student_file, lab_input, expected_output, timeout=5):
     exe_file = student_file.replace('.c', '.exe')
@@ -61,9 +62,11 @@ def main():
         expected_output = os.path.join(output_folder, f'{lab_number}_output.dat')
         
         results = []
-        
-        for student_file in os.listdir(student_code_folder):
-            if student_file.endswith('.c'):
+        student_files = [f for f in os.listdir(student_code_folder) if f.endswith('.c')]
+
+        # ใช้ tqdm ในการแสดง Progress Bar
+        with tqdm(total=len(student_files), desc=f'Processing Lab {lab_number}', unit='file') as pbar:
+            for student_file in student_files:
                 # ตรวจสอบชื่อไฟล์ที่เป็น studentid_labnumber.c
                 parts = student_file.split('_')
                 if len(parts) == 2:
@@ -83,6 +86,9 @@ def main():
                         else:
                             is_correct = (student_output == expected_output_content)
                             results.append([student_id, lab_number, student_output, expected_output_content, int(is_correct)])
+
+                        # อัปเดต Progress Bar หลังประมวลผลแต่ละไฟล์
+                        pbar.update(1)
 
         # บันทึกผลลัพธ์ลง CSV
         if results:

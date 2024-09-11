@@ -246,7 +246,6 @@ try {
 
     <div class="container mt-4">
         <h2 class="mb-4 text-center">Student Dashboard</h2>
-        <h3 class="mb-4 text-center"><?php echo $student_id . ' | ' . $user_email ; ?></h3>
 
         <!-- Display Error Message if Exists -->
         <?php if (isset($error_message)): ?>
