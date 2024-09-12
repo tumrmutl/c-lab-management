@@ -6,6 +6,9 @@ if (!isset($_COOKIE['admin_logged_in']) || $_COOKIE['admin_logged_in'] !== 'true
     exit();
 }
 
+// นำเข้า config.php เพื่อดึงรหัสวิชาจากอาเรย์ $table
+include 'config.php';
+
 // ตั้งค่าการเชื่อมต่อฐานข้อมูล
 $env = parse_ini_file(__DIR__ . '/.env');
 $conn = new mysqli($env['DB_HOST'], $env['DB_USERNAME'], $env['DB_PASSWORD'], $env['DB_NAME']);
@@ -13,13 +16,31 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// ดึงข้อมูลการเปรียบเทียบไฟล์ทั้งหมดจากตาราง file_similarity
-$sql = "SELECT lab_id, file1, file2, similarity, hash_similarity, structure_similarity, token_similarity, embedding_similarity, tfidf_similarity FROM file_similarity ORDER BY lab_id ASC";
-$result = $conn->query($sql);
+// ฟังก์ชันดึงข้อมูลจากฐานข้อมูลตามรหัสวิชา
+function getSimilarityData($conn, $course_code) {
+    $table_name = $course_code . '_similarity'; // ใช้ตารางที่ลงท้ายด้วย _similarity ตามรหัสวิชา
+    $sql = "SELECT lab_id, file1, file2, similarity, hash_similarity, structure_similarity, token_similarity, embedding_similarity, tfidf_similarity
+            FROM $table_name
+            ORDER BY lab_id ASC";
 
-// ตรวจสอบว่ามีข้อมูลหรือไม่
-if ($result === FALSE) {
-    die("Error retrieving file similarity data: " . $conn->error);
+    $result = $conn->query($sql);
+    if ($result === FALSE) {
+        error_log("Error retrieving similarity data for $course_code: " . $conn->error);
+        return [];
+    }
+
+    $data = [];
+    while ($row = $result->fetch_assoc()) {
+        $data[] = $row;
+    }
+
+    return $data;
+}
+
+// ดึงข้อมูลการเปรียบเทียบไฟล์ของทุกวิชา
+$all_similarity_data = [];
+foreach ($table as $course_code) {
+    $all_similarity_data[$course_code] = getSimilarityData($conn, $course_code);
 }
 
 $conn->close();
@@ -42,44 +63,49 @@ $conn->close();
 
     <div class="container mt-4">
         <h1 class="mb-4">ข้อมูลการเปรียบเทียบไฟล์</h1>
-        
-        <!-- ตารางแสดงข้อมูล -->
-        <table id="similarityTable" class="table table-striped table-bordered">
-            <thead class="thead-dark">
-                <tr>
-                    <th>Lab ID</th>
-                    <th>ไฟล์ 1</th>
-                    <th>ไฟล์ 2</th>
-                    <th>Similarity (%)</th>
-                    <th>Hash Similarity (%)</th>
-                    <th>Structural Similarity (%)</th>
-                    <th>Token Similarity (%)</th>
-                    <th>Embedding Similarity (%)</th>
-                    <th>TF-IDF Similarity (%)</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php if ($result->num_rows > 0): ?>
-                    <?php while($row = $result->fetch_assoc()): ?>
-                        <tr>
-                            <td><a href="compare_files.php?lab_id=<?php echo htmlspecialchars($row['lab_id']); ?>&file1=<?php echo urlencode(htmlspecialchars($row['file1'])); ?>&file2=<?php echo urlencode(htmlspecialchars($row['file2'])); ?>" target="_blank"><?php echo htmlspecialchars($row['lab_id']); ?></a></td>
-                            <td><a href="https://thailandfxwarrior.com/lab/student_c/<?php echo htmlspecialchars($row['file1']); ?>_<?php echo htmlspecialchars($row['lab_id']); ?>.c" target="_blank"><?php echo htmlspecialchars($row['file1']); ?></a></td>
-                            <td><a href="https://thailandfxwarrior.com/lab/student_c/<?php echo htmlspecialchars($row['file2']); ?>_<?php echo htmlspecialchars($row['lab_id']); ?>.c" target="_blank"><?php echo htmlspecialchars($row['file2']); ?></a></td>
-                            <td class="percent-cell"><?php echo htmlspecialchars($row['similarity']); ?>%</td>
-                            <td class="percent-cell"><?php echo htmlspecialchars($row['hash_similarity']); ?>%</td>
-                            <td class="percent-cell"><?php echo htmlspecialchars($row['structure_similarity']); ?>%</td>
-                            <td class="percent-cell"><?php echo htmlspecialchars($row['token_similarity']); ?>%</td>
-                            <td class="percent-cell"><?php echo htmlspecialchars($row['embedding_similarity']); ?>%</td>
-                            <td class="percent-cell"><?php echo htmlspecialchars($row['tfidf_similarity']); ?>%</td>
-                        </tr>
-                    <?php endwhile; ?>
-                <?php else: ?>
+
+        <!-- วนลูปแสดงข้อมูลสำหรับแต่ละวิชา -->
+        <?php foreach ($all_similarity_data as $course_code => $similarity_data): ?>
+            <h3>วิชา: <?php echo htmlspecialchars($course_code); ?></h3>
+
+            <table id="similarityTable_<?php echo htmlspecialchars($course_code); ?>" class="table table-striped table-bordered">
+                <thead class="thead-dark">
                     <tr>
-                        <td colspan="9" class="text-center">ไม่มีข้อมูลการเปรียบเทียบไฟล์</td>
+                        <th>Lab ID</th>
+                        <th>ไฟล์ 1</th>
+                        <th>ไฟล์ 2</th>
+                        <th>Similarity (%)</th>
+                        <th>Hash Similarity (%)</th>
+                        <th>Structural Similarity (%)</th>
+                        <th>Token Similarity (%)</th>
+                        <th>Embedding Similarity (%)</th>
+                        <th>TF-IDF Similarity (%)</th>
                     </tr>
-                <?php endif; ?>
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    <?php if (count($similarity_data) > 0): ?>
+                        <?php foreach ($similarity_data as $row): ?>
+                            <tr>
+                                <td><a href="compare_files.php?lab_id=<?php echo htmlspecialchars($row['lab_id']); ?>&file1=<?php echo urlencode(htmlspecialchars($row['file1'])); ?>&file2=<?php echo urlencode(htmlspecialchars($row['file2'])); ?>" target="_blank"><?php echo htmlspecialchars($row['lab_id']); ?></a></td>
+                                <td><a href="https://thailandfxwarrior.com/lab/student_c/<?php echo htmlspecialchars($row['file1']); ?>_<?php echo htmlspecialchars($row['lab_id']); ?>.c" target="_blank"><?php echo htmlspecialchars($row['file1']); ?></a></td>
+                                <td><a href="https://thailandfxwarrior.com/lab/student_c/<?php echo htmlspecialchars($row['file2']); ?>_<?php echo htmlspecialchars($row['lab_id']); ?>.c" target="_blank"><?php echo htmlspecialchars($row['file2']); ?></a></td>
+                                <td class="percent-cell"><?php echo htmlspecialchars($row['similarity']); ?>%</td>
+                                <td class="percent-cell"><?php echo htmlspecialchars($row['hash_similarity']); ?>%</td>
+                                <td class="percent-cell"><?php echo htmlspecialchars($row['structure_similarity']); ?>%</td>
+                                <td class="percent-cell"><?php echo htmlspecialchars($row['token_similarity']); ?>%</td>
+                                <td class="percent-cell"><?php echo htmlspecialchars($row['embedding_similarity']); ?>%</td>
+                                <td class="percent-cell"><?php echo htmlspecialchars($row['tfidf_similarity']); ?>%</td>
+                            </tr>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <tr>
+                            <td colspan="9" class="text-center">ไม่มีข้อมูลการเปรียบเทียบไฟล์สำหรับวิชานี้</td>
+                        </tr>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+            <br />
+        <?php endforeach; ?>
     </div>
 
     <!-- jQuery และ DataTables JavaScript -->
@@ -87,44 +113,41 @@ $conn->close();
     <script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
     <script>
         $(document).ready(function() {
-            // กำหนด DataTables
-            var table = $('#similarityTable').DataTable({
-                "pageLength": 100, // กำหนดให้แสดง 100 records ต่อหน้า
-                "language": {
-                    "lengthMenu": "แสดง _MENU_ รายการต่อหน้า",
-                    "zeroRecords": "ไม่พบข้อมูล",
-                    "info": "แสดงหน้าที่ _PAGE_ จาก _PAGES_",
-                    "infoEmpty": "ไม่มีข้อมูล",
-                    "infoFiltered": "(กรองจากทั้งหมด _MAX_ รายการ)",
-                    "search": "ค้นหา:",
-                    "paginate": {
-                        "first": "หน้าแรก",
-                        "last": "หน้าสุดท้าย",
-                        "next": "ถัดไป",
-                        "previous": "ก่อนหน้า"
+            // กำหนด DataTables สำหรับแต่ละตาราง
+            <?php foreach ($table as $course_code): ?>
+                $('#similarityTable_<?php echo htmlspecialchars($course_code); ?>').DataTable({
+                    "pageLength": 100,
+                    "language": {
+                        "lengthMenu": "แสดง _MENU_ รายการต่อหน้า",
+                        "zeroRecords": "ไม่พบข้อมูล",
+                        "info": "แสดงหน้าที่ _PAGE_ จาก _PAGES_",
+                        "infoEmpty": "ไม่มีข้อมูล",
+                        "infoFiltered": "(กรองจากทั้งหมด _MAX_ รายการ)",
+                        "search": "ค้นหา:",
+                        "paginate": {
+                            "first": "หน้าแรก",
+                            "last": "หน้าสุดท้าย",
+                            "next": "ถัดไป",
+                            "previous": "ก่อนหน้า"
+                        }
                     }
-                }
-            });
+                });
+            <?php endforeach; ?>
 
             function getColor(value) {
                 var red, green, blue;
 
                 if (value >= 45) {
-                    // ค่อยๆ ลดความสว่างจากสี Salmon (#FA8072) เป็นสีขาวเมื่อค่า 40% ถึง 100%
-                    // สี Salmon: rgb(250, 128, 114)
-                    // สีขาว: rgb(255, 255, 255)
-
                     var salmonRed = 250;
                     var salmonGreen = 128;
                     var salmonBlue = 114;
 
-                    var percentage = (value - 40) / 60; // เปอร์เซ็นต์ระหว่าง 0 ถึง 1 (40% ถึง 100%)
+                    var percentage = (value - 40) / 60;
 
                     red = Math.round(salmonRed - (255 - salmonRed) * percentage);
                     green = Math.round(salmonGreen - (255 - salmonGreen) * percentage);
                     blue = Math.round(salmonBlue - (255 - salmonBlue) * percentage);
                 } else {
-                    // ใช้สีขาวสำหรับค่า < 40
                     red = 255;
                     green = 255;
                     blue = 255;
@@ -133,18 +156,16 @@ $conn->close();
                 return 'rgb(' + red + ',' + green + ',' + blue + ')';
             }
 
-            // แปลงสีของ % ในแต่ละเซลล์ หลังจาก DataTables ตั้งค่าเสร็จ
-            table.on('draw', function() {
+            $('table').on('draw', function() {
                 $('.percent-cell').each(function() {
                     var value = parseFloat($(this).text().replace('%', ''));
                     if (!isNaN(value) && value >= 0 && value <= 100) {
                         var color = getColor(value);
                         $(this).css('background-color', color);
-                        $(this).css('color', '#333'); // ใช้สีเทาเข้มสำหรับตัวอักษร
+                        $(this).css('color', '#333');
                     }
                 });
-            }).draw(); // เรียกใช้งาน draw เพื่อให้แน่ใจว่า dataTable ถูกตั้งค่าเรียบร้อยแล้ว
-            
+            }).draw();
         });
     </script>
 </body>

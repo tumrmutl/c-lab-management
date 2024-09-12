@@ -65,7 +65,6 @@ function getLabOverviewDetails($conn) {
     return $lab_details;
 }
 
-
 // ฟังก์ชันเพื่อดึงข้อมูลภาพรวมของ Lab
 function getLabOverview($conn, $student_id) {
     // จำนวน Lab ID ทั้งหมด
@@ -96,7 +95,6 @@ function getLabOverview($conn, $student_id) {
     ];
 }
 
-// ฟังก์ชันเพื่อดึงข้อมูลการส่ง Lab ของนักเรียน
 // ฟังก์ชันเพื่อดึงข้อมูลการส่ง Lab ของนักเรียน
 function getStudentLabDetails($conn, $student_id) {
     // Lab ที่ยังไม่ได้ส่ง
@@ -207,12 +205,12 @@ try {
     // ดึงข้อมูลไฟล์ที่รอตรวจสอบของนักเรียนปัจจุบัน
     $pending_lab_files = getPendingLabFiles($upload_directory, $student_id);
 
-
     $conn->close();
 } catch (Exception $e) {
     $error_message = $e->getMessage();
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>

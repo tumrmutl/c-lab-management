@@ -6,6 +6,9 @@ if (!isset($_COOKIE['admin_logged_in']) || $_COOKIE['admin_logged_in'] !== 'true
     exit();
 }
 
+// นำเข้า config.php เพื่อดึงตารางวิชาที่ต้องการใช้
+include 'config.php';
+
 // ฟังก์ชันเพื่ออ่านรหัสผ่านปัจจุบันจากไฟล์ pass.dat
 function getCurrentPassword() {
     $file_path = 'pass.dat';
@@ -13,16 +16,16 @@ function getCurrentPassword() {
 }
 
 // ฟังก์ชันเพื่อดึงข้อมูลการส่ง Lab จากฐานข้อมูล
-function getLabStatistics($conn) {
+function getLabStatistics($conn, $course_code) {
     $sql = "SELECT lab_id, COUNT(*) AS total_submissions,
                    SUM(CASE WHEN result = 1 THEN 1 ELSE 0 END) AS correct_submissions,
                    SUM(CASE WHEN result = 0 THEN 1 ELSE 0 END) AS incorrect_submissions
-            FROM LAB
+            FROM $course_code
             GROUP BY lab_id";
     $result = $conn->query($sql);
 
     if ($result === FALSE) {
-        error_log("Error retrieving lab statistics: " . $conn->error);
+        error_log("Error retrieving lab statistics for $course_code: " . $conn->error);
         return [];
     }
 
@@ -41,8 +44,11 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// รับข้อมูลการส่ง Lab
-$lab_statistics = getLabStatistics($conn);
+// ดึงข้อมูลสถิติการส่ง Lab ของทุกวิชา
+$all_lab_statistics = [];
+foreach ($table as $course_code) {
+    $all_lab_statistics[$course_code] = getLabStatistics($conn, $course_code);
+}
 
 $conn->close();
 ?>
@@ -63,26 +69,30 @@ $conn->close();
         <p>รหัสปัจจุบัน: <?php echo getCurrentPassword(); ?></p>
 
         <h3 class="mt-4">สถิติการส่ง Lab</h3>
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>Lab</th>
-                    <th>จำนวนการส่งทั้งหมด</th>
-                    <th>จำนวนที่ทำถูกต้อง</th>
-                    <th>จำนวนที่ทำผิด</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($lab_statistics as $stat): ?>
+
+        <?php foreach ($all_lab_statistics as $course_code => $lab_statistics): ?>
+            <h4>วิชา: <?php echo htmlspecialchars($course_code); ?></h4>
+            <table class="table table-striped">
+                <thead>
                     <tr>
-                        <td><?php echo htmlspecialchars($stat['lab_id']); ?></td>
-                        <td><?php echo htmlspecialchars($stat['total_submissions']); ?></td>
-                        <td><?php echo htmlspecialchars($stat['correct_submissions']); ?></td>
-                        <td><?php echo htmlspecialchars($stat['incorrect_submissions']); ?></td>
+                        <th>Lab</th>
+                        <th>จำนวนการส่งทั้งหมด</th>
+                        <th>จำนวนที่ทำถูกต้อง</th>
+                        <th>จำนวนที่ทำผิด</th>
                     </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    <?php foreach ($lab_statistics as $stat): ?>
+                        <tr>
+                            <td><?php echo htmlspecialchars($stat['lab_id']); ?></td>
+                            <td><?php echo htmlspecialchars($stat['total_submissions']); ?></td>
+                            <td><?php echo htmlspecialchars($stat['correct_submissions']); ?></td>
+                            <td><?php echo htmlspecialchars($stat['incorrect_submissions']); ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        <?php endforeach; ?>
     </div>
 
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
