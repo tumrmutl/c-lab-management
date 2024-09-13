@@ -19,6 +19,11 @@ RewriteRule . /index.php [L]
    Deny from all
 </Files>
 
+<Files ".dat">
+   Order allow,deny
+   Deny from all
+</Files>
+
 
 # END WordPress
 php_flag  log_errors off
