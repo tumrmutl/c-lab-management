@@ -86,13 +86,13 @@ $conn->close();
                     <?php if (count($similarity_data) > 0): ?>
                         <?php foreach ($similarity_data as $row): ?>
                             <?php
-                                $row['file1'] = $course_code . "/" . $row['file1'] ;
-                                $row['file2'] = $course_code . "/" . $row['file2'] ;
+                                $file_path1 = $course_code . "/" . $row['file1'] ;
+                                $file_path2 = $course_code . "/" . $row['file2'] ;
                             ?>
                             <tr>
                                 <td><a href="compare_files.php?lab_id=<?php echo htmlspecialchars($row['lab_id']); ?>&file1=<?php echo urlencode(htmlspecialchars($row['file1'])); ?>&file2=<?php echo urlencode(htmlspecialchars($row['file2'])); ?>" target="_blank"><?php echo htmlspecialchars($row['lab_id']); ?></a></td>
-                                <td><a href="https://thailandfxwarrior.com/lab/student_c/<?php echo htmlspecialchars($row['file1']); ?>_<?php echo htmlspecialchars($row['lab_id']); ?>.c" target="_blank"><?php echo htmlspecialchars($row['file1']); ?></a></td>
-                                <td><a href="https://thailandfxwarrior.com/lab/student_c/<?php echo htmlspecialchars($row['file2']); ?>_<?php echo htmlspecialchars($row['lab_id']); ?>.c" target="_blank"><?php echo htmlspecialchars($row['file2']); ?></a></td>
+                                <td><a href="https://thailandfxwarrior.com/lab/student_c/<?php echo htmlspecialchars($file_path1); ?>_<?php echo htmlspecialchars($row['lab_id']); ?>.c" target="_blank"><?php echo htmlspecialchars($row['file1']); ?></a></td>
+                                <td><a href="https://thailandfxwarrior.com/lab/student_c/<?php echo htmlspecialchars($file_path2); ?>_<?php echo htmlspecialchars($row['lab_id']); ?>.c" target="_blank"><?php echo htmlspecialchars($row['file2']); ?></a></td>
                                 <td class="percent-cell"><?php echo htmlspecialchars($row['similarity']); ?>%</td>
                                 <td class="percent-cell"><?php echo htmlspecialchars($row['hash_similarity']); ?>%</td>
                                 <td class="percent-cell"><?php echo htmlspecialchars($row['structure_similarity']); ?>%</td>

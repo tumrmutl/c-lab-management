@@ -1,12 +1,7 @@
 <?php
 // ตรวจสอบว่าผู้ใช้ได้เข้าสู่ระบบแล้วหรือไม่
 session_start();
-
-// av( $_SESSION ) ;
-// echo '<hr />' ;
-// av( $_COOKIE ) ;
-
-if (!isset($_SESSION['student_logged_in']) || $_SESSION['student_logged_in'] !== true) {
+if (!isset($_COOKIE['student_logged_in']) || $_COOKIE['student_logged_in'] !== 'true') {
     header('Location: index.php');
     exit();
 }
