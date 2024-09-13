@@ -4,7 +4,6 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-
 // ตรวจสอบว่าผู้ใช้ได้เข้าสู่ระบบแล้วหรือไม่
 session_start();
 if (!isset($_SESSION['student_logged_in']) || $_SESSION['student_logged_in'] !== true) {
@@ -33,22 +32,11 @@ function loadEnv($path) {
     return $envVars;
 }
 
-// ฟังก์ชันเพื่อดึง student_id จาก email
-function getStudentIdByEmail($conn, $email) {
-    $sql = "SELECT student_id FROM student WHERE email = ?";
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("s", $email);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $student = $result->fetch_assoc();
-    return $student ? $student['student_id'] : null;
-}
-
 // ฟังก์ชันสำหรับดึงข้อมูล Lab ของนักเรียน
-function getStudentLabData($student_id, $conn) {
+function getStudentLabData($student_id, $table, $conn) {
     $student_id = $conn->real_escape_string($student_id);
 
-    $sql = "SELECT * FROM LAB WHERE std_id='$student_id' ORDER BY `lab_id` ASC";
+    $sql = "SELECT * FROM $table WHERE std_id='$student_id' ORDER BY `lab_id` ASC";
     $result = $conn->query($sql);
 
     if ($result === FALSE) {
@@ -64,6 +52,17 @@ function getStudentLabData($student_id, $conn) {
     return $data;
 }
 
+// ฟังก์ชันเพื่อดึง student_id จาก email
+function getStudentIdByEmail($conn, $email) {
+    $sql = "SELECT student_id FROM student WHERE email = ?";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("s", $email);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $student = $result->fetch_assoc();
+    return $student ? $student['student_id'] : null;
+}
+
 try {
     $env = loadEnv(__DIR__ . '/.env');
 
@@ -73,6 +72,9 @@ try {
         throw new Exception("Connection failed: " . $conn->connect_error);
     }
 
+    // โหลดรหัสวิชาจากไฟล์ config.php
+    $config = include __DIR__ . '/config.php';
+    $tables = $table ; // สมมติว่า config.php คืนค่าเป็นอาเรย์ที่มีคีย์ 'table'
 
     $user_email = $_SESSION['user_email']; // ใช้อีเมลจากเซสชัน
     $student_id = getStudentIdByEmail($conn, $user_email);
@@ -80,8 +82,15 @@ try {
     if (!$student_id) {
         throw new Exception("Student ID not found.");
     }
-    $student_data = getStudentLabData($student_id, $conn);
 
+    // เก็บข้อมูลทั้งหมดตามรหัสวิชา
+    $all_student_data = [];
+    foreach ($tables as $table) {
+        $student_data = getStudentLabData($student_id, $table, $conn);
+        if (!empty($student_data)) {
+            $all_student_data[$table] = $student_data;
+        }
+    }
 
 } catch (Exception $e) {
     echo "<div class='alert alert-danger' role='alert'>Error: " . $e->getMessage() . "</div>";
@@ -117,38 +126,40 @@ try {
     <div class="container mt-4">
         <h2>Check Your Lab Submission Status</h2>
 
-        <?php if (!empty($student_data)): ?>
-            <h3 class="mt-4">Submission Details</h3>
-            <table class="table table-striped table-bordered">
-                <thead class="thead-dark">
-                    <tr>
-                        <th>Lab</th>
-                        <th>Student Output</th>
-                        <th>Teacher Output</th>
-                        <th>Result</th>
-                        <th>Submission Timestamp</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($student_data as $row): ?>
+        <?php if (!empty($all_student_data)): ?>
+            <?php foreach ($all_student_data as $table => $student_data): ?>
+                <h3 class="mt-4">Submission Details for <?php echo htmlspecialchars($table); ?></h3>
+                <table class="table table-striped table-bordered">
+                    <thead class="thead-dark">
                         <tr>
-                            <td><?php echo htmlspecialchars($row['lab_id']); ?></td>
-                            <td class="pre-wrap"><?php echo htmlspecialchars(trim($row['student_output'])); ?></td>
-                            <td class="pre-wrap"><?php echo htmlspecialchars(trim($row['teacher_output'])); ?></td>
-                            <td>
-                                <?php 
-                                if ($row['result'] == '1') {
-                                    echo '<i class="fas fa-check-circle" style="color: green;"></i>';
-                                } else {
-                                    echo '<i class="fas fa-times-circle" style="color: red;"></i>';
-                                }
-                                ?>
-                            </td>
-                            <td><?php echo htmlspecialchars($row['timestamp']); ?></td>
+                            <th>Lab</th>
+                            <th>Student Output</th>
+                            <th>Teacher Output</th>
+                            <th>Result</th>
+                            <th>Submission Timestamp</th>
                         </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($student_data as $row): ?>
+                            <tr>
+                                <td><?php echo htmlspecialchars($row['lab_id']); ?></td>
+                                <td class="pre-wrap"><?php echo htmlspecialchars(trim($row['student_output'])); ?></td>
+                                <td class="pre-wrap"><?php echo htmlspecialchars(trim($row['teacher_output'])); ?></td>
+                                <td>
+                                    <?php 
+                                    if ($row['result'] == '1') {
+                                        echo '<i class="fas fa-check-circle" style="color: green;"></i>';
+                                    } else {
+                                        echo '<i class="fas fa-times-circle" style="color: red;"></i>';
+                                    }
+                                    ?>
+                                </td>
+                                <td><?php echo htmlspecialchars($row['timestamp']); ?></td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            <?php endforeach; ?>
         <?php else: ?>
             <div class="alert alert-warning" role="alert">No records found for Student ID: <?php echo htmlspecialchars($student_id); ?></div>
         <?php endif; ?>

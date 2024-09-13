@@ -63,10 +63,10 @@ try {
                 // ตั้งค่าเซสชันสำหรับการเข้าสู่ระบบ
                 $_SESSION['student_logged_in'] = true;
                 $_SESSION['user_email'] = $input_email; // ใช้อีเมลของผู้ใช้
-                $_SESSION['student_id'] = getStudentIdByEmail($conn, $input_email);; // ใช้อีเมลของผู้ใช้
+                $_SESSION['student_id'] = getStudentIdByEmail($conn, $input_email); // ใช้อีเมลของผู้ใช้
 
                 setcookie('student_logged_in', 'true', time() + 3600, '/'); // Cookie valid for 1 hour
-
+                session_set_cookie_params(3600);
                 // เปลี่ยนเส้นทางไปยังหน้า student_dashboard.php
                 header('Location: student_dashboard.php');
                 exit();
@@ -115,12 +115,13 @@ try {
                 <label for="password">Password</label>
                 <input type="password" class="form-control" id="password" name="password" required>
             </div>
-            <button type="submit" class="btn btn-primary">Login</button>
+            <div class="mt-3">
+                <button type="submit" class="btn btn-primary">Login</button>
+                <a href="register.php" class="btn btn-secondary" target="_blank">Register</a>
+                <a href="forgot_password.php" class="btn btn-link" target="_blank">Forgot Password?</a>
+            </div>    
         </form>
-        <div class="mt-3">
-            <a href="register.php" class="btn btn-secondary" target="_blank">Register</a>
-            <a href="forgot_password.php" class="btn btn-link" target="_blank" Password?</a>
-        </div>
+        
     </div>
 <!-- Include the footer -->
 <?php include 'footer.php'; ?>

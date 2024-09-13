@@ -1,7 +1,10 @@
 <?php
+
+$env = parse_ini_file(__DIR__ . '/.env');
+
 // รหัสผ่านส่วนตัวที่ฝังในโค้ด
-$admin_username = "admin";
-$admin_password = "113333";
+$admin_username = $env['ADMIN_USER'];
+$admin_password = $env['ADMIN_PASSWORD'];
 
 // ตรวจสอบว่ามีการส่งข้อมูลผ่านฟอร์มหรือไม่
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {

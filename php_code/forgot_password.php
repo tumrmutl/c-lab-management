@@ -3,13 +3,13 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-session_start();
+// session_start();
 
-// ตรวจสอบให้แน่ใจว่าผู้ใช้ไม่ได้ล็อกอินอยู่
-if (isset($_SESSION['student_logged_in']) && $_SESSION['student_logged_in'] === true) {
-    header('Location: index.php');
-    exit();
-}
+// // ตรวจสอบให้แน่ใจว่าผู้ใช้ไม่ได้ล็อกอินอยู่
+// if (isset($_SESSION['student_logged_in']) && $_SESSION['student_logged_in'] === true) {
+//     header('Location: index.php');
+//     exit();
+// }
 
 // ฟังก์ชันโหลดการตั้งค่าจากไฟล์ .env
 function loadEnv($path) {

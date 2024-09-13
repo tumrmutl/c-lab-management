@@ -1,10 +1,22 @@
 <?php
 // ตรวจสอบว่าผู้ใช้ได้เข้าสู่ระบบแล้วหรือไม่
 session_start();
+
+// av( $_SESSION ) ;
+// echo '<hr />' ;
+// av( $_COOKIE ) ;
+
 if (!isset($_SESSION['student_logged_in']) || $_SESSION['student_logged_in'] !== true) {
     header('Location: index.php');
     exit();
 }
+
+function av( $input ) {
+    echo '<pre>' ;
+    print_r( $input ) ;
+    echo '</pre>' ;
+}
+
 
 // ฟังก์ชันเพื่อโหลดการตั้งค่าฐานข้อมูลจากไฟล์ .env
 function loadEnv($path) {
@@ -39,14 +51,14 @@ function getStudentIdByEmail($conn, $email) {
 }
 
 // ฟังก์ชันเพื่อดึงข้อมูล Lab Overview ทั้งหมด
-function getLabOverviewDetails($conn) {
+function getLabOverviewDetails($conn, $subject) {
     // Lab ID ทั้งหมดที่มีการส่งข้อมูล
     $sql_labs = "
         SELECT lab_id, 
                COUNT(*) AS total_submissions,
                SUM(CASE WHEN result = 0 THEN 1 ELSE 0 END) AS incorrect_submissions,
                SUM(CASE WHEN result = 1 THEN 1 ELSE 0 END) AS correct_submissions
-        FROM LAB
+        FROM ".$subject."
         GROUP BY lab_id
         ORDER BY lab_id ASC
     ";
@@ -96,11 +108,11 @@ function getLabOverview($conn, $student_id) {
 }
 
 // ฟังก์ชันเพื่อดึงข้อมูลการส่ง Lab ของนักเรียน
-function getStudentLabDetails($conn, $student_id) {
+function getStudentLabDetails($conn, $subject, $student_id) {
     // Lab ที่ยังไม่ได้ส่ง
     $sql_not_submitted = "
         SELECT DISTINCT lab_id 
-        FROM LAB 
+        FROM ".$subject." 
         WHERE lab_id NOT IN (
             SELECT DISTINCT lab_id 
             FROM LAB 
@@ -173,12 +185,17 @@ function getPendingLabFiles($directory, $student_id) {
         $lab_id = extractLabIdFromFileName($file_name);
         // ตรวจสอบว่า Lab ID ของไฟล์ตรงกับรหัสนักเรียน
         if ($lab_id && strpos($file_name, $student_id . '_') === 0) {
-            $file_paths[] = 'https://thailandfxwarrior.com/lab/student_c/' . $file_name;
+            //$file_paths[] = 'https://thailandfxwarrior.com/lab/student_c/' . $file_name;
+            $file_paths[] = 'https://thailandfxwarrior.com/lab/' . $directory . $file_name;
+            
         }
     }
     
     return $file_paths;
 }
+
+$config = include __DIR__ . '/config.php';
+$tables = $table ;
 
 try {
     $env = loadEnv(__DIR__ . '/.env');
@@ -195,15 +212,22 @@ try {
         throw new Exception("Student ID not found.");
     }
 
-    $lab_overview = getLabOverview($conn, $student_id);
-    $student_lab_details = getStudentLabDetails($conn, $student_id);
-    $lab_overview_details = getLabOverviewDetails($conn); // เรียกใช้ฟังก์ชันใหม่
+
+    //av( $tables ) ;
+
 
     // กำหนดโฟลเดอร์ที่ใช้เก็บไฟล์
     $upload_directory = 'student_c/';
 
     // ดึงข้อมูลไฟล์ที่รอตรวจสอบของนักเรียนปัจจุบัน
-    $pending_lab_files = getPendingLabFiles($upload_directory, $student_id);
+    foreach( $tables as $value ) {
+        //$lab_overview = getLabOverview($conn, $student_id);
+        $student_lab_details[$value] = getStudentLabDetails($conn, $value, $student_id);
+        $lab_overview_details[$value] = getLabOverviewDetails($conn, $value); // เรียกใช้ฟังก์ชันใหม่
+        $pending_lab_files[ $value ] = getPendingLabFiles($upload_directory . $value . '/', $student_id ) ;
+    }
+
+    //$pending_lab_files = getPendingLabFiles($upload_directory, $student_id);
 
     $conn->close();
 } catch (Exception $e) {
@@ -252,7 +276,8 @@ try {
             </div>
         <?php endif; ?>
 
-        <!-- Lab Overview Section -->
+    <?php foreach( $tables as $value ) : ?>
+        <!-- Lab Overview Section
         <div class="card">
             <div class="card-header">
                 <h4>Lab Overview</h4>
@@ -270,99 +295,110 @@ try {
                     <tbody>
                         <?php foreach ($lab_overview_details as $lab): ?>
                             <tr>
-                                <td><?php echo htmlspecialchars($lab['lab_id']); ?></td>
-                                <td><?php echo htmlspecialchars($lab['total_submissions']); ?></td>
-                                <td class="status-correct"><?php echo htmlspecialchars($lab['correct_submissions']); ?></td>
-                                <td class="status-incorrect"><?php echo htmlspecialchars($lab['incorrect_submissions']); ?></td>
+                                <td><?php //echo htmlspecialchars($lab['lab_id']); ?></td>
+                                <td><?php //echo htmlspecialchars($lab['total_submissions']); ?></td>
+                                <td class="status-correct"><?php //echo htmlspecialchars($lab['correct_submissions']); ?></td>
+                                <td class="status-incorrect"><?php //echo htmlspecialchars($lab['incorrect_submissions']); ?></td>
                             </tr>
                         <?php endforeach; ?>
                     </tbody>
                 </table>
             </div>
-        </div>
+        </div> -->
 
         <!-- Student Lab Submission Details -->
-        <div class="row">
-            <!-- Not Submitted Labs -->
-            <div class="col-md-4">
-                <div class="card">
-                    <div class="card-header">
-                        <h4>Labs Not Submitted</h4>
-                    </div>
-                    <div class="card-body">
-                        <?php if (!empty($student_lab_details['not_submitted_labs'])): ?>
-                            <ul class="list-group">
-                                <?php foreach ($student_lab_details['not_submitted_labs'] as $lab_id): ?>
-                                    <li class="list-group-item status-pending"><?php echo htmlspecialchars($lab_id); ?></li>
-                                <?php endforeach; ?>
-                            </ul>
-                        <?php else: ?>
-                            <p class="text-muted">No labs pending submission</p>
-                        <?php endif; ?>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Incorrect Labs -->
-            <div class="col-md-4">
-                <div class="card">
-                    <div class="card-header">
-                        <h4>Labs Submitted Incorrectly</h4>
-                    </div>
-                    <div class="card-body">
-                        <?php if (!empty($student_lab_details['submitted_incorrect_labs'])): ?>
-                            <ul class="list-group">
-                                <?php foreach ($student_lab_details['submitted_incorrect_labs'] as $lab_id): ?>
-                                    <li class="list-group-item status-incorrect"><?php echo htmlspecialchars($lab_id); ?></li>
-                                <?php endforeach; ?>
-                            </ul>
-                        <?php else: ?>
-                            <p class="text-muted">No incorrect submissions</p>
-                        <?php endif; ?>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Correct Labs -->
-            <div class="col-md-4">
-                <div class="card">
-                    <div class="card-header">
-                        <h4>Labs Submitted Correctly</h4>
-                    </div>
-                    <div class="card-body">
-                        <?php if (!empty($student_lab_details['submitted_correct_labs'])): ?>
-                            <ul class="list-group">
-                                <?php foreach ($student_lab_details['submitted_correct_labs'] as $lab_id): ?>
-                                    <li class="list-group-item status-correct"><?php echo htmlspecialchars($lab_id); ?></li>
-                                <?php endforeach; ?>
-                            </ul>
-                        <?php else: ?>
-                            <p class="text-muted">No correct submissions</p>
-                        <?php endif; ?>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Pending Lab Files Section -->
-        <div class="card mt-4">
-            <div class="card-header">
-                <h4>Your Pending Lab Files</h4>
+        <div class="card">
+            <div class="card-header bg-primary">
+                <h4><?php echo $value ; ?></h4>
             </div>
             <div class="card-body">
-                <?php if (!empty($pending_lab_files)): ?>
-                    <ul class="list-group">
-                        <?php foreach ($pending_lab_files as $file_url): ?>
-                            <li class="list-group-item">
-                                <a href="<?php echo htmlspecialchars($file_url); ?>" target="_blank"><?php echo htmlspecialchars(basename($file_url)); ?></a>
-                            </li>
-                        <?php endforeach; ?>
-                    </ul>
-                <?php else: ?>
-                    <p class="text-muted">No pending lab files for review.</p>
-                <?php endif; ?>
+                <div class="row">
+                    <!-- Not Submitted Labs -->
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h4>ค้างส่ง</h4>
+                            </div>
+                            <div class="card-body">
+                                <?php if (!empty($student_lab_details[$value]['not_submitted_labs'])): ?>
+                                    <ul class="list-group">
+                                        <?php foreach ($student_lab_details[$value]['not_submitted_labs'] as $lab_id): ?>
+                                            <li class="list-group-item status-pending"><?php echo htmlspecialchars($lab_id); ?></li>
+                                        <?php endforeach; ?>
+                                    </ul>
+                                <?php else: ?>
+                                    <p class="text-muted">No labs pending submission</p>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Incorrect Labs -->
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h4>ส่งแล้ว แต่ไม่ถูก</h4>
+                            </div>
+                            <div class="card-body">
+                                <?php if (!empty($student_lab_details[$value]['submitted_incorrect_labs'])): ?>
+                                    <ul class="list-group">
+                                        <?php foreach ($student_lab_details[$value]['submitted_incorrect_labs'] as $lab_id): ?>
+                                            <li class="list-group-item status-incorrect"><?php echo htmlspecialchars($lab_id); ?></li>
+                                        <?php endforeach; ?>
+                                    </ul>
+                                <?php else: ?>
+                                    <p class="text-muted">No incorrect submissions</p>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Correct Labs -->
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h4>ส่งแล้ว คำตอบถูกแล้ว</h4>
+                            </div>
+                            <div class="card-body">
+                                <?php if (!empty($student_lab_details[$value]['submitted_correct_labs'])): ?>
+                                    <ul class="list-group">
+                                        <?php foreach ($student_lab_details[$value]['submitted_correct_labs'] as $lab_id): ?>
+                                            <li class="list-group-item status-correct"><?php echo htmlspecialchars($lab_id); ?></li>
+                                        <?php endforeach; ?>
+                                    </ul>
+                                <?php else: ?>
+                                    <p class="text-muted">No correct submissions</p>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pending Lab Files Section -->
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h4>ไฟล์รอตรวจ</h4>
+                    </div>
+                    <div class="card-body">
+                        <?php if (!empty($pending_lab_files)): ?>
+                            <ul class="list-group">
+                                <?php foreach ($pending_lab_files[$value] as $file_url): ?>
+                                    <li class="list-group-item">
+                                        <a href="<?php echo htmlspecialchars($file_url); ?>" target="_blank"><?php echo htmlspecialchars(basename($file_url)); ?></a>
+                                    </li>
+                                <?php endforeach; ?>
+                            </ul>
+                        <?php else: ?>
+                            <p class="text-muted">No pending lab files for review.</p>
+                        <?php endif; ?>
+                    </div>
+                </div>
+
             </div>
         </div>
+    <?php endforeach ; ?>
+
+
     </div>
 
     <!-- Include the footer -->

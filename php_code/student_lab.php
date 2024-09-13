@@ -66,6 +66,8 @@ $uploadOk = 1;
 
 // ตรวจสอบว่าไฟล์ถูกส่งมาหรือไม่
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $target_dir .= $_POST['course'] . "/" ;
+    
     // กำหนดชื่อไฟล์และนามสกุล
     $fileName = basename($_FILES["fileToUpload"]["name"]);
     $fileType = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
@@ -116,10 +118,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         if ($uploadOk == 1) {
             // สร้างชื่อไฟล์ใหม่ตามรูปแบบ รหัสนักศึกษา_เลขLab.นามสกุล
             $newFileName = $student_id . "_" . $lab_number . "." . $fileType;
-            $target_file = $target_dir . $newFileName;
+            $target_file = $target_dir . $newFileName ;
 
             if (move_uploaded_file($_FILES["fileToUpload"]["tmp_name"], $target_file)) {
-                $message = "<div class='alert alert-success' role='alert'>ไฟล์ " . htmlspecialchars($newFileName) . " ได้รับการอัพโหลดแล้ว.</div>";
+                $message = "<div class='alert alert-success' role='alert'>ไฟล์ " . htmlspecialchars($newFileName) . " ได้รับการอัพโหลดแล้วที่ <a href='".$target_file."' target='_BLANK'>" . $target_file . "</a></div>";
                 $message .= "<div class='alert alert-info' role='alert'>วิชาที่เลือก: " . htmlspecialchars($course) . "</div>";
             } else {
                 $message = "<div class='alert alert-danger' role='alert'>เกิดข้อผิดพลาดในการอัพโหลดไฟล์ของคุณ.</div>";

@@ -5,7 +5,12 @@ if (!isset($_COOKIE['admin_logged_in']) || $_COOKIE['admin_logged_in'] !== 'true
     header('Location: index.php');
     exit();
 }
-
+function av( $input ) {
+    echo '<pre>' ;
+    print_r( $input ) ;
+    echo '</pre>' ;
+}
+//av( $_COOKIE ) ;
 // นำเข้า config.php เพื่อดึงตารางวิชาที่ต้องการใช้
 include 'config.php';
 
