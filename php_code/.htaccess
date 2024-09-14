@@ -19,7 +19,7 @@ RewriteRule . /index.php [L]
    Deny from all
 </Files>
 
-<Files ".dat">
+<Files "pass.dat">
    Order allow,deny
    Deny from all
 </Files>

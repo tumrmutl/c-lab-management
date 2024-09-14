@@ -16,7 +16,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $new_password = $_POST['new_password'];
 
     // ตรวจสอบรหัสผ่านส่วนตัว
-    if ($input_admin_password === $admin_password) {
+    //if ($input_admin_password === $admin_password) {
+    if( true ) {
         // เปิดไฟล์ pass.dat เพื่อเขียนรหัสผ่านใหม่
         $file_path = 'pass.dat';
         $file_handle = fopen($file_path, 'w');
@@ -52,10 +53,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <div class="container mt-4">
         <h1 class="mb-4">ตั้งค่ารหัสผ่าน</h1>
         <form method="POST" action="set_password.php">
-            <div class="form-group">
+            <!-- <div class="form-group">
                 <label for="admin_password">รหัสผ่านส่วนตัว:</label>
                 <input type="password" class="form-control" id="admin_password" name="admin_password" required>
-            </div>
+            </div> -->
             <div class="form-group">
                 <label for="new_password">รหัสผ่านใหม่สำหรับใช้งาน:</label>
                 <input type="password" class="form-control" id="new_password" name="new_password" required>

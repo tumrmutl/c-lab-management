@@ -75,8 +75,8 @@ $conn->close();
                             <tr>
                                 <td><?php echo htmlspecialchars($row['std_id']); ?></td>
                                 <td><?php echo htmlspecialchars($row['lab_id']); ?></td>
-                                <td><?php echo htmlspecialchars($row['student_output']); ?></td>
-                                <td><?php echo htmlspecialchars($row['teacher_output']); ?></td>
+                                <td><?php echo nl2br($row['student_output']); ?></td>
+                                <td><?php echo nl2br($row['teacher_output']); ?></td>
                                 <td>
                                     <?php if ($row['result'] == 1): ?>
                                         <i class="fas fa-check-circle" style="color: green;"></i>

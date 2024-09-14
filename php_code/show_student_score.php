@@ -143,8 +143,8 @@ try {
                         <?php foreach ($student_data as $row): ?>
                             <tr>
                                 <td><?php echo htmlspecialchars($row['lab_id']); ?></td>
-                                <td class="pre-wrap"><?php echo htmlspecialchars(trim($row['student_output'])); ?></td>
-                                <td class="pre-wrap"><?php echo htmlspecialchars(trim($row['teacher_output'])); ?></td>
+                                <td class="pre-wrap"><?php echo nl2br(trim($row['student_output'])); ?></td>
+                                <td class="pre-wrap"><?php echo nl2br(trim($row['teacher_output'])); ?></td>
                                 <td>
                                     <?php 
                                     if ($row['result'] == '1') {

@@ -5,9 +5,9 @@
     </button>
     <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav mr-auto">
-            <li class="nav-item">
+            <!-- <li class="nav-item">
                 <a class="nav-link" href="get_password.php">รับรหัสส่ง Lab</a>
-            </li>
+            </li> -->
             <li class="nav-item">
                 <a class="nav-link" href="set_password.php">ตั้งค่ารหัสส่ง Lab</a>
             </li>
