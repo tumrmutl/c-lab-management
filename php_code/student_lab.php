@@ -7,6 +7,8 @@ if (!isset($_SESSION['student_logged_in']) || $_SESSION['student_logged_in'] !==
     exit();
 }
 
+include 'config.php';
+
 // ฟังก์ชันเพื่อดึง student_id จาก email
 function getStudentIdByEmail($conn, $email) {
     $sql = "SELECT student_id FROM student WHERE email = ?";
@@ -161,20 +163,27 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <input type="password" class="form-control" id="password" name="password" required>
             </div>
             <div class="form-group">
-                <label for="lab_number">เลข Lab</label>
-                <input type="text" class="form-control" id="lab_number" name="lab_number" required>
+                <label for="lab_number">เลือกประเภทงาน</label>
+                <select class="form-control" id="lab_number" name="lab_number" required>
+                    <option value="">-- เลือกงานที่จะส่ง --</option>
+
+                <?php foreach( $work as $value ) : ?>
+                    <option value="<?=$value?>"><?=$value?></option>
+                <?php endforeach ; ?>
+
+                </select>
             </div>
             <div class="form-group">
                 <label for="course">เลือกวิชา</label>
                 <select class="form-control" id="course" name="course" required>
                     <option value="">-- เลือกวิชา --</option>
-                    <option value="ENGCC304">ENGCC304 Computer Programming</option>
-                    <option value="ENGCE174">ENGCE174 Computer Programming for Computer Engineering</option>
-                    <option value="ENGCE117">ENGCE117 Object-oriented Programming</option>
+                <?php foreach( $table as $value ) : ?>
+                    <option value="<?=$value?>"><?=$value?></option>
+                <?php endforeach ; ?>
                 </select>
             </div>
             <div class="form-group">
-                <label for="fileToUpload">เลือกไฟล์เพื่ออัพโหลด</label>
+                <label for="fileToUpload">เลือกไฟล์เพื่ออัพโหลด (ต้องเป็นนามสกุล .c, .cpp เท่านั้น)</label>
                 <input type="file" class="form-control-file" id="fileToUpload" name="fileToUpload" required>
             </div>
             <button type="submit" class="btn btn-primary">อัพโหลดไฟล์</button>
