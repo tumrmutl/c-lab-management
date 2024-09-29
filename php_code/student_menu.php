@@ -1,23 +1,26 @@
 
 <!-- student_menu.php -->
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <a class="navbar-brand" href="student_dashboard.php">Student Dashboard</a>
+    <a class="navbar-brand" href="student_dashboard.php">ภาพรวมทั้งหมด</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav mr-auto">
             <li class="nav-item">
-                <a class="nav-link" href="student_profile.php">Profile</a>
+                <a class="nav-link" href="student_profile.php">โปรไฟล์</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="student_lab.php">Upload Lab</a>
+                <a class="nav-link" href="student_lab.php">อัพโหลดงาน</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="show_student_score.php">View Lab Submit</a>
+                <a class="nav-link" href="show_student_score.php">ตรวจสอบงาน</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="logout.php">Logout</a>
+                <a class="nav-link" href="student_check_code.php">ตรวจสอบความเรียบร้อยก่อนส่ง</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="logout.php">ล็อกเอาท์</a>
             </li>
         </ul>
 

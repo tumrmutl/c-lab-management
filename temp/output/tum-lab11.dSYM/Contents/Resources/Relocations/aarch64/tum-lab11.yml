@@ -1,0 +1,8 @@
+---
+triple:          'arm64-apple-darwin'
+binary-path:     '/Users/milk/Documents/git/c-lab-management/temp/output/tum-lab11'
+relocations:
+  - { offsetInCU: 0x26, offset: 0x26, size: 0x8, addend: 0x0, symName: _isArmstrong, symObjAddr: 0x0, symBinAddr: 0x100003DBC, symSize: 0x128 }
+  - { offsetInCU: 0x41, offset: 0x41, size: 0x8, addend: 0x0, symName: _isArmstrong, symObjAddr: 0x0, symBinAddr: 0x100003DBC, symSize: 0x128 }
+  - { offsetInCU: 0xA1, offset: 0xA1, size: 0x8, addend: 0x0, symName: _main, symObjAddr: 0x128, symBinAddr: 0x100003EE4, symSize: 0x7C }
+...

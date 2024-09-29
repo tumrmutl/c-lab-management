@@ -1,7 +1,7 @@
 Enter the details of Student 1:
 Name: ID: Scores in Subject 1: Scores in Subject 2: Scores in Subject 3: Scores in Subject 4: Scores in Subject 5: Enter the details of Student 2:
 Name: ID: Scores in Subject 1: Scores in Subject 2: Scores in Subject 3: Scores in Subject 4: Scores in Subject 5: Enter the details of Student 3:
-Name: ID: Scores in Subject 1: Scores in Subject 2: Scores in Subject 3: Scores in Subject 4: Scores in Subject 5:
+Name: ID: Scores in Subject 1: Scores in Subject 2: Scores in Subject 3: Scores in Subject 4: Scores in Subject 5: 
 Student 1:
 Name: John Doe
 ID: 101
@@ -10,7 +10,7 @@ Grades: B+ C C+ D D+
 Average Scores: 63.4
 
 Student 2:
-Name: Jane Sith
+Name: Jane Smith
 ID: 102
 Scores: 43 70 76 77 80
 Grades: F B B+ B+ A
@@ -21,4 +21,4 @@ Name: Mark Johnson
 ID: 103
 Scores: 77 74 76 81 69
 Grades: B+ B B+ A C+
-Average Scores: 65.4
+Average Scores: 75.4

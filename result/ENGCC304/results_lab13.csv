@@ -1,0 +1,4 @@
+student id,lab,student output,teacher output,result,subject
+671-1,lab13,"Enter num1: Enter num2: Before swap (num1 & num2): 10, 20
+After swap (num1 & num2): 20, 10","Enter num1: Enter num2: Before swap (num1 & num2): 10, 20
+After swap (num1 & num2): 20, 10",1,ENGCC304

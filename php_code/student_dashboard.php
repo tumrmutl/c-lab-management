@@ -73,14 +73,14 @@ function getLabOverviewDetails($conn, $subject) {
 }
 
 // ฟังก์ชันเพื่อดึงข้อมูลภาพรวมของ Lab
-function getLabOverview($conn, $student_id) {
+function getLabOverview($conn, $student_id, $subject) {
     // จำนวน Lab ID ทั้งหมด
-    $sql_total_labs = "SELECT COUNT(DISTINCT lab_id) AS total_labs FROM LAB";
+    $sql_total_labs = "SELECT COUNT(DISTINCT lab_id) AS total_labs FROM " . $subject ;
     $result_total = $conn->query($sql_total_labs);
     $total_labs = $result_total->fetch_assoc()['total_labs'];
 
     // จำนวน Lab ที่ทำถูกต้อง
-    $sql_correct = "SELECT COUNT(DISTINCT lab_id) AS correct_labs FROM LAB WHERE std_id = ? AND result = 1";
+    $sql_correct = "SELECT COUNT(DISTINCT lab_id) AS correct_labs FROM ".$subject." WHERE std_id = ? AND result = 1";
     $stmt_correct = $conn->prepare($sql_correct);
     $stmt_correct->bind_param("s", $student_id);
     $stmt_correct->execute();
@@ -88,7 +88,7 @@ function getLabOverview($conn, $student_id) {
     $correct_labs = $result_correct->fetch_assoc()['correct_labs'];
 
     // จำนวน Lab ที่ทำผิด
-    $sql_incorrect = "SELECT COUNT(DISTINCT lab_id) AS incorrect_labs FROM LAB WHERE std_id = ? AND result = 0";
+    $sql_incorrect = "SELECT COUNT(DISTINCT lab_id) AS incorrect_labs FROM ".$subject." WHERE std_id = ? AND result = 0";
     $stmt_incorrect = $conn->prepare($sql_incorrect);
     $stmt_incorrect->bind_param("s", $student_id);
     $stmt_incorrect->execute();
@@ -110,7 +110,7 @@ function getStudentLabDetails($conn, $subject, $student_id) {
         FROM ".$subject." 
         WHERE lab_id NOT IN (
             SELECT DISTINCT lab_id 
-            FROM LAB 
+            FROM ".$subject." 
             WHERE std_id = ?
         )
         ORDER BY lab_id ASC
@@ -127,7 +127,7 @@ function getStudentLabDetails($conn, $subject, $student_id) {
     // Lab ที่ส่งแล้วแต่ทำผิด
     $sql_submitted_incorrect = "
         SELECT DISTINCT lab_id 
-        FROM LAB 
+        FROM ".$subject." 
         WHERE std_id = ? AND result = 0
         ORDER BY lab_id ASC
     ";
@@ -143,7 +143,7 @@ function getStudentLabDetails($conn, $subject, $student_id) {
     // Lab ที่ส่งแล้วและทำถูกต้อง
     $sql_submitted_correct = "
         SELECT DISTINCT lab_id 
-        FROM LAB 
+        FROM ".$subject." 
         WHERE std_id = ? AND result = 1
         ORDER BY lab_id ASC
     ";
@@ -372,7 +372,7 @@ try {
                 <!-- Pending Lab Files Section -->
                 <div class="card mt-4">
                     <div class="card-header">
-                        <h4>ไฟล์รอตรวจ</h4>
+                        <h4>หลักฐานการส่ง</h4>
                     </div>
                     <div class="card-body">
                         <?php if (!empty($pending_lab_files)): ?>
