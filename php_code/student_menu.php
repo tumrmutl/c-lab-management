@@ -17,7 +17,7 @@
                 <a class="nav-link" href="show_student_score.php">ตรวจสอบงาน</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="student_check_code.php">ตรวจสอบความเรียบร้อยก่อนส่ง</a>
+                <a class="nav-link" href="student_check_code.php">ตรวจ Codex</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="logout.php">ล็อกเอาท์</a>
