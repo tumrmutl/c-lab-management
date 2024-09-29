@@ -63,6 +63,32 @@ function getStudentIdByEmail($conn, $email) {
     return $student ? $student['student_id'] : null;
 }
 
+function highlightDifferences($student_output, $teacher_output) {
+    // แปลงข้อความทั้งสองเป็นอาเรย์เพื่อเปรียบเทียบทีละคำหรือบรรทัด
+    $student_lines = explode("\n", $student_output);
+    $teacher_lines = explode("\n", $teacher_output);
+
+    // ฟังก์ชันนี้จะไฮไลต์บรรทัดที่ต่างกัน
+    $highlighted = [];
+
+    foreach ($student_lines as $index => $student_line) {
+        if (isset($teacher_lines[$index])) {
+            if ($student_line === $teacher_lines[$index]) {
+                // ถ้าบรรทัดเหมือนกัน ให้แสดงตามปกติ
+                $highlighted[] = htmlspecialchars($student_line);
+            } else {
+                // ถ้าต่างกัน ให้แสดงด้วยการเน้น
+                $highlighted[] = '<span style="background-color: yellow;">' . htmlspecialchars($student_line) . '</span>';
+            }
+        } else {
+            // ถ้าบรรทัดใน student ไม่มีใน teacher ให้ทำการเน้น
+            $highlighted[] = '<span style="background-color: yellow;">' . htmlspecialchars($student_line) . '</span>';
+        }
+    }
+
+    return implode("<br>", $highlighted);
+}
+
 try {
     $env = loadEnv(__DIR__ . '/.env');
 
@@ -139,12 +165,17 @@ try {
                             <th>Submission Timestamp</th>
                         </tr>
                     </thead>
+
                     <tbody>
                         <?php foreach ($student_data as $row): ?>
                             <tr>
                                 <td><?php echo htmlspecialchars($row['lab_id']); ?></td>
-                                <td class="pre-wrap"><?php echo nl2br(trim($row['student_output'])); ?></td>
-                                <td class="pre-wrap"><?php echo nl2br(trim($row['teacher_output'])); ?></td>
+                                <td class="">
+                                    <?php echo highlightDifferences(trim($row['student_output']), trim($row['teacher_output'])); ?>
+                                </td>
+                                <td class="">
+                                    <?php echo nl2br(htmlspecialchars(trim($row['teacher_output']))); ?>
+                                </td>
                                 <td>
                                     <?php 
                                     if ($row['result'] == '1') {
@@ -158,6 +189,7 @@ try {
                             </tr>
                         <?php endforeach; ?>
                     </tbody>
+
                 </table>
             <?php endforeach; ?>
         <?php else: ?>
@@ -172,3 +204,27 @@ try {
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>
+
+<?php
+/**
+ *                     <tbody>
+                        <?php foreach ($student_data as $row): ?>
+                            <tr>
+                                <td><?php echo htmlspecialchars($row['lab_id']); ?></td>
+                                <td><?php echo nl2br(trim($row['student_output'])); ?></td>
+                                <td><?php echo nl2br(trim($row['teacher_output'])); ?></td>
+                                <td>
+                                    <?php 
+                                    if ($row['result'] == '1') {
+                                        echo '<i class="fas fa-check-circle" style="color: green;"></i>';
+                                    } else {
+                                        echo '<i class="fas fa-times-circle" style="color: red;"></i>';
+                                    }
+                                    ?>
+                                </td>
+                                <td><?php echo htmlspecialchars($row['timestamp']); ?></td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+ */
+?>

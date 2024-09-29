@@ -5,20 +5,22 @@ from tqdm import tqdm
 
 def compile_and_run(student_file, lab_input, expected_output, timeout=5):
     exe_file = student_file.replace('.c', '.exe')
-    compile_process = subprocess.run(['gcc', student_file, '-o', exe_file], capture_output=True)
-    
-    if compile_process.returncode != 0:
-        return None, None, compile_process.stderr.decode('utf-8')
-    
     try:
+        compile_process = subprocess.run(['gcc', student_file, '-o', exe_file], capture_output=True)
+        if compile_process.returncode != 0:
+            return None, None, f"ข้อผิดพลาดในการคอมไพล์: {compile_process.stderr.decode('utf-8')}"
+        
         with open(lab_input, 'r') as infile, open('student_output.txt', 'w') as outfile:
             run_process = subprocess.run([f'./{exe_file}'], stdin=infile, stdout=outfile, stderr=subprocess.PIPE, timeout=timeout)
         
         if run_process.returncode != 0:
-            return None, None, run_process.stderr.decode('utf-8')
+            return None, None, f"ข้อผิดพลาดในการรันโปรแกรม: {run_process.stderr.decode('utf-8')}"
+    
     except subprocess.TimeoutExpired:
         return None, None, f"โปรแกรมรันเกินเวลาที่กำหนด ({timeout} วินาที)"
-
+    except Exception as e:
+        return None, None, f"ข้อผิดพลาด: {str(e)}"
+    
     with open('student_output.txt', 'r') as student_output_file:
         student_output = student_output_file.read().strip()
 
@@ -87,7 +89,7 @@ def main():
 
                         if error:
                             print(f"{student_file}: เกิดข้อผิดพลาดขณะรันโปรแกรม: {error}")
-                            results.append([student_id, lab_number, 'เกิดข้อผิดพลาด', 'N/A', 0, subject])
+                            results.append([student_id, lab_number, error, 'N/A', 0, subject])  # เพิ่มข้อผิดพลาดลงใน CSV
                         else:
                             is_correct = (student_output == expected_output_content)
                             results.append([student_id, lab_number, student_output, expected_output_content, int(is_correct), subject])
