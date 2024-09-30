@@ -18,6 +18,24 @@ $file2 = htmlspecialchars($_GET['file2']);
 // สร้างชื่อไฟล์เต็ม
 $file1_full = "{$file1}_{$lab_id}.c";
 $file2_full = "{$file2}_{$lab_id}.c";
+
+// ฟังก์ชันเพื่อดึงข้อมูลไฟล์พร้อมเพิ่มเลขบรรทัด
+function getFileLines($file) {
+    $url = "https://thailandfxwarrior.com/lab/student_c/{$file}";
+    if (@file_get_contents($url)) {
+        $lines = file($url, FILE_IGNORE_NEW_LINES);
+        return $lines;
+    } else {
+        return ["Error: ไม่พบไฟล์ " . htmlspecialchars($file)];
+    }
+}
+
+// ดึงข้อมูลจากไฟล์
+$file1_content = getFileLines($file1_full);
+$file2_content = getFileLines($file2_full);
+
+// หาไฟล์ที่มีจำนวนบรรทัดมากที่สุด
+$maxLines = max(count($file1_content), count($file2_content));
 ?>
 
 <!DOCTYPE html>
@@ -48,6 +66,17 @@ $file2_full = "{$file2}_{$lab_id}.c";
             font-weight: bold;
             margin-bottom: 10px;
         }
+        .line-number {
+            color: gray;
+            font-weight: bold;
+            padding-right: 10px;
+        }
+        pre {
+            white-space: pre-wrap;
+        }
+        .highlight {
+            background-color: #ffffcc;
+        }
     </style>
 </head>
 <body>
@@ -61,11 +90,39 @@ $file2_full = "{$file2}_{$lab_id}.c";
         <div class="file-container">
             <div class="file-content">
                 <div class="file-header">ไฟล์ 1: <?php echo htmlspecialchars($file1_full); ?></div>
-                <pre><?php echo htmlspecialchars(file_get_contents("https://thailandfxwarrior.com/lab/student_c/{$file1_full}")); ?></pre>
+                <pre>
+<?php
+for ($i = 0; $i < $maxLines; $i++) {
+    $line1 = isset($file1_content[$i]) ? htmlspecialchars($file1_content[$i]) : '';
+    $line2 = isset($file2_content[$i]) ? htmlspecialchars($file2_content[$i]) : '';
+    
+    // ตรวจสอบว่าบรรทัดทั้งสองไฟล์เหมือนกันหรือไม่
+    $highlightClass = ($line1 === $line2) ? 'highlight' : '';
+    
+    echo "<span class='line-number'>" . ($i + 1) . ":</span> ";
+    echo "<span class='{$highlightClass}'>{$line1}</span>";
+    echo "\n";
+}
+?>
+                </pre>
             </div>
             <div class="file-content">
                 <div class="file-header">ไฟล์ 2: <?php echo htmlspecialchars($file2_full); ?></div>
-                <pre><?php echo htmlspecialchars(file_get_contents("https://thailandfxwarrior.com/lab/student_c/{$file2_full}")); ?></pre>
+                <pre>
+<?php
+for ($i = 0; $i < $maxLines; $i++) {
+    $line1 = isset($file1_content[$i]) ? htmlspecialchars($file1_content[$i]) : '';
+    $line2 = isset($file2_content[$i]) ? htmlspecialchars($file2_content[$i]) : '';
+    
+    // ตรวจสอบว่าบรรทัดทั้งสองไฟล์เหมือนกันหรือไม่
+    $highlightClass = ($line1 === $line2) ? 'highlight' : '';
+    
+    echo "<span class='line-number'>" . ($i + 1) . ":</span> ";
+    echo "<span class='{$highlightClass}'>{$line2}</span>";
+    echo "\n";
+}
+?>
+                </pre>
             </div>
         </div>
     </div>
