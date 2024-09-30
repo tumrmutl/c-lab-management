@@ -3,12 +3,13 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-
 session_start();
 if (!isset($_SESSION['student_logged_in']) || $_SESSION['student_logged_in'] !== true) {
     header('Location: index.php');
     exit();
 }
+
+include 'config.php';
 
 function av( $input ) {
     echo '<pre>' ;
@@ -178,11 +179,11 @@ try {
 
     <form method="POST" action="student_profile.php">
         <div class="form-group">
-            <label for="student_id">Student ID</label>
+            <label for="student_id">รหัสนักศึกษา</label>
             <input type="text" class="form-control" id="student_id" name="student_id" value="<?= htmlspecialchars($profile['student_id']) ?>" required>
         </div>
         <div class="form-group">
-            <label for="name">Full Name</label>
+            <label for="name">ชื่อจริง - นามสกุล</label>
             <input type="text" class="form-control" id="name" name="name" value="<?= htmlspecialchars($profile['name']) ?>" required>
         </div>
         <div class="form-group">
@@ -194,7 +195,7 @@ try {
             <input type="text" class="form-control" id="github" name="github" value="<?= htmlspecialchars($profile['github']) ?>">
         </div>
         <div class="form-group">
-            <label for="nickname">Nickname</label>
+            <label for="nickname">ชื่อเล่น</label>
             <input type="text" class="form-control" id="nickname" name="nickname" value="<?= htmlspecialchars($profile['nickname']) ?>">
         </div>
         <div class="form-group">
@@ -206,16 +207,31 @@ try {
             <input type="text" class="form-control" id="instagram" name="instagram" value="<?= htmlspecialchars($profile['instagram']) ?>">
         </div>
         <div class="form-group">
-            <label for="line">LINE</label>
+            <label for="line">LINE Notify <small>(ไม่ใช่ Line ID นะ)</small></label>
             <input type="text" class="form-control" id="line" name="line" value="<?= htmlspecialchars($profile['line']) ?>">
         </div>
         <div class="form-group">
-            <label for="tel">Telephone</label>
+            <label for="tel">เบอร์โทรศัพท์</label>
             <input type="text" class="form-control" id="tel" name="tel" value="<?= htmlspecialchars($profile['tel']) ?>">
         </div>
         <div class="form-group">
-            <label for="major">Major</label>
-            <input type="text" class="form-control" id="major" name="major" value="<?= htmlspecialchars($profile['major']) ?>">
+            <label for="major">หลักสูตร</label>
+            <!-- <input type="text" class="form-control" id="major" name="major" value="<?= htmlspecialchars($profile['major']) ?>"> -->
+
+            
+                <select class="form-control" id="major" name="major" required>
+                    <option value="">-- เลือกหลักสูตร --</option>
+                <?php foreach( $class as $value ) : ?>
+                    <?php
+                        if( $profile['major'] == $value ) {
+                            echo "<option value='".$profile['major']."' selected>".$profile['major']."</option>" ;
+                        } else {
+                            echo "<option value='".$value."'>".$value."</option>" ;
+                        }
+                    ?>
+                <?php endforeach ; ?>
+                </select>
+
         </div>
         <button type="submit" class="btn btn-primary btn-block">Update Profile</button>
     </form>

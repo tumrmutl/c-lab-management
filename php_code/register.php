@@ -153,7 +153,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             </div>
             <!-- ฟอร์มจะถูกส่งถ้ารหัสลับถูกต้อง -->
             <div class="form-group">
-                <label for="email">Email Address</label>
+                <label for="email">Email ของมหาวิทยาลัย</label>
                 <input type="email" class="form-control" id="email" name="email" required>
             </div>
             <div class="form-group">
@@ -161,46 +161,47 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <input type="password" class="form-control" id="password" name="password" required>
             </div>
             <div class="form-group">
-                <label for="student_id">Student ID</label>
+                <label for="student_id">รหัสนักศึกษา</label>
                 <input type="text" class="form-control" id="student_id" name="student_id" required>
             </div>
             <div class="form-group">
-                <label for="name">Full Name</label>
+                <label for="name">ชื่อจริง-นามสกุล</label>
                 <input type="text" class="form-control" id="name" name="name" required>
             </div>
             <div class="form-group">
-                <label for="github">GitHub Username</label>
+                <label for="github">GitHub</label>
                 <input type="text" class="form-control" id="github" name="github">
             </div>
             <div class="form-group">
-                <label for="nickname">Nickname</label>
+                <label for="nickname">ชื่อเล่น</label>
                 <input type="text" class="form-control" id="nickname" name="nickname">
             </div>
             <div class="form-group">
-                <label for="facebook">Facebook Profile</label>
+                <label for="facebook">Facebook</label>
                 <input type="text" class="form-control" id="facebook" name="facebook">
             </div>
             <div class="form-group">
-                <label for="instagram">Instagram Profile</label>
+                <label for="instagram">Instagram</label>
                 <input type="text" class="form-control" id="instagram" name="instagram">
             </div>
             <div class="form-group">
-                <label for="line">LINE ID</label>
+                <label for="line">LINE Notify <small>(ไม่ใช่ Line ID นะ)</small></label>
                 <input type="text" class="form-control" id="line" name="line">
             </div>
             <div class="form-group">
-                <label for="tel">Telephone Number</label>
+                <label for="tel">เบอร์โทรศัพท์</label>
                 <input type="text" class="form-control" id="tel" name="tel">
             </div>
             <div class="form-group">
                 <label for="major">Major</label>
                 <select class="form-control" id="major" name="major" required>
+                    <option value="">-- เลือกหลักสูตร --</option>
                     <?php foreach ($class as $major): ?>
                         <option value="<?php echo htmlspecialchars($major); ?>"><?php echo htmlspecialchars($major); ?></option>
                     <?php endforeach; ?>
                 </select>
             </div>
-            <button type="submit" class="btn btn-primary">Register</button>
+            <button type="submit" class="btn btn-primary">Register</button> | <a href="./index.php">< กลับหน้าแรก</a>
         </form>
     </div>
 </body>
