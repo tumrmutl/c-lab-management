@@ -1,0 +1,24 @@
+student id,lab,student output,teacher output,result,subject
+671-1,lab7,"Do you want to play game (1=play, -1=exit) : (Score=100)
+Guess the winning number (1-100): Sorry, the winning number is LOWER than 60. (Score=90)
+Guess the winning number (1-59): Your guess is out of the current bounds (1-59)! Try again.
+Guess the winning number (1-59): Sorry, the winning number is HIGHER than 13. (Score=80)
+Guess the winning number (14-59): Your guess is out of the current bounds (14-59)! Try again.
+Guess the winning number (14-59): Sorry, the winning number is HIGHER than 20. (Score=70)
+Guess the winning number (21-59): Sorry, the winning number is HIGHER than 30. (Score=60)
+Guess the winning number (31-59): Sorry, the winning number is HIGHER than 41. (Score=50)
+Guess the winning number (42-59): Sorry, the winning number is LOWER than 43. (Score=40)
+Guess the winning number (42-42): That is correct! The winning number is 42.
+Score this game: 40
+Do you want to play game (1=play, -1=exit) :","Do you want to play game (1=play, -1=exit) : (Score=100)
+Guess the winning number (1-100): Sorry, the winning number is LOWER than 60. (Score=90)
+Guess the winning number (1-59): Your guess is out of the current bounds (1-59)! Try again.
+Guess the winning number (1-59): Sorry, the winning number is HIGHER than 13. (Score=80)
+Guess the winning number (14-59): Your guess is out of the current bounds (14-59)! Try again.
+Guess the winning number (14-59): Sorry, the winning number is HIGHER than 20. (Score=70)
+Guess the winning number (21-59): Sorry, the winning number is HIGHER than 30. (Score=60)
+Guess the winning number (31-59): Sorry, the winning number is HIGHER than 41. (Score=50)
+Guess the winning number (42-59): Sorry, the winning number is LOWER than 43. (Score=40)
+Guess the winning number (42-42): That is correct! The winning number is 42.
+Score this game: 40
+Do you want to play game (1=play, -1=exit) :",1,ENGCC304

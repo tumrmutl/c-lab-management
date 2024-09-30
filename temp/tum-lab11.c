@@ -19,8 +19,8 @@ int isArmstrong(int num) {
 
     // คำนวณผลรวมของเลขยกกำลังของจำนวนหลัก
     while (originalNum != 0) {
-        remainder = originalNum % 10;
-        result += pow(remainder, n);
+  remainder = originalNum % 10;
+    result += pow(remainder, n);
         originalNum /= 10;
     }
 
@@ -42,7 +42,7 @@ int main() {
     if (isArmstrong(num))
         printf("Pass.\n");
     else
-        printf("Not Pass.\n");
+    printf("Not Pass.\n");
 
     return 0;
 }

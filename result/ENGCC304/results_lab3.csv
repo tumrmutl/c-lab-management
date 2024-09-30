@@ -1,2 +1,6 @@
 student id,lab,student output,teacher output,result,subject
-9999999-9,lab3,3,A,0,ENGCC304
+671-1,lab3,"Enter N : Enter value[0] : Enter value[1] : Enter value[2] : Enter value[3] : Enter value[4] : Enter value[5] : Enter value[6] : Enter value[7] : Enter value[8] : Index:   0  1  2  3  4  5  6  7  8 
+Array:   2  #  #  5  #  7  3  # 13","Enter N : Enter value[0] : Enter value[1] : Enter value[2] : Enter value[3] : Enter value[4] : Enter value[5] : Enter value[6] : Enter value[7] : Enter value[8] : Index:   0  1  2  3  4  5  6  7  8 
+Array:   2  #  #  5  #  7  3  # 13",1,ENGCC304
+9999999-9,lab3,11,"Enter N : Enter value[0] : Enter value[1] : Enter value[2] : Enter value[3] : Enter value[4] : Enter value[5] : Enter value[6] : Enter value[7] : Enter value[8] : Index:   0  1  2  3  4  5  6  7  8 
+Array:   2  #  #  5  #  7  3  # 13",0,ENGCC304

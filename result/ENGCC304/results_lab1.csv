@@ -1,4 +1,12 @@
 student id,lab,student output,teacher output,result,subject
-673333333-3,lab1,10,enter : 10,0,ENGCC304
-673-3,lab1,10,enter : 10,0,ENGCC304
-671-1,lab1,enter : 10,enter : 10,1,ENGCC304
+673333333-3,lab1,48421953,"Enter your name: Enter your age: - - - - - -
+Hello Baithong 
+Age = 19",0,ENGCC304
+673-3,lab1,84122609,"Enter your name: Enter your age: - - - - - -
+Hello Baithong 
+Age = 19",0,ENGCC304
+671-1,lab1,"Enter your name: Enter your age: - - - - - -
+Hello Baithong 
+Age = 19","Enter your name: Enter your age: - - - - - -
+Hello Baithong 
+Age = 19",1,ENGCC304

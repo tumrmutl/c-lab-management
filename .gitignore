@@ -1,3 +1,5 @@
 # เพิ่มบรรทัดนี้ในไฟล์ .gitignore
 .env
 .venv/
+./temp/
+./BACKUP/

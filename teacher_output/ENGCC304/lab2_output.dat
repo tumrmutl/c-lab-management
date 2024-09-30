@@ -1,2 +1,8 @@
-[0] hello world
-[1] hello world
+Enter a character: 
+Enter two integers: 
+Enter a floating-point number: 
+Enter a string: 
+You entered character: M
+You entered integers: 89 and 54
+You entered floating-point number: 196.24
+You entered string: Thailand

@@ -1,0 +1,6 @@
+student id,lab,student output,teacher output,result,subject
+671-1,lab16,"Old Series : 15, 7, 25, 3, 73, 32, 45
+New Series : 3, 7, 15, 25, 32, 45, 73
+Pos of 32 : 4","Old Series : 15, 7, 25, 3, 73, 32, 45
+New Series : 3, 7, 15, 25, 32, 45, 73
+Pos of 32 : 4",1,ENGCC304

@@ -1,0 +1,10 @@
+student id,lab,student output,teacher output,result,subject
+671-1,lab14,"Enter value: Index:  0  1  2  3  4  5  6 
+Array: 18 15 19 14 11 14 19 
+
+Min : 11
+Max : 19","Enter value: Index:  0  1  2  3  4  5  6 
+Array: 18 15 19 14 11 14 19 
+
+Min : 11
+Max : 19",1,ENGCC304
