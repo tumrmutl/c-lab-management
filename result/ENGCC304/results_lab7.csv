@@ -23,8 +23,7 @@ Guess the winning number (42-42): That is correct! The winning number is 42.
 Score this game: 40
 Do you want to play game (1=play, -1=exit) :",1,ENGCC304
 67543206110-8,lab7,"Do you want to play game (1=play, -1=exit) : ( Score = 100 )
-Guess the winning number ( 1 - 100 ): Sorry, the winning number is HIGHER than 60. ( Score = 90 )
-Guess the winning number ( 61 - 100 ): Sorry, the winning number is LOWER than 80. ( Score = 80 )
+Guess the winning number ( 1 - 100 ): Sorry, the winning number is LOWER than 60. ( Score = 90 )
 Do you want to play game (1=play, -1=exit) :","Do you want to play game (1=play, -1=exit) : (Score=100)
 Guess the winning number (1-100): Sorry, the winning number is LOWER than 60. (Score=90)
 Guess the winning number (1-59): Your guess is out of the current bounds (1-59)! Try again.

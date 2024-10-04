@@ -1,13 +1,25 @@
 student id,lab,student output,teacher output,result,subject
+4806741,lab1,"ข้อผิดพลาดในการคอมไพล์: student_code/ENGCC304\4806741_lab1.c: In function 'main':
+student_code/ENGCC304\4806741_lab1.c:6:34: error: expected ';' before 'scanf'
+    6 |     printf( ""Enter your name: "" )
+      |                                  ^
+      |                                  ;
+    7 |     scanf( ""%s"", Name ) ;
+      |     ~~~~~                         
+student_code/ENGCC304\4806741_lab1.c:10:5: warning: implicit declaration of function 'print'; did you mean 'printf'? [-Wimplicit-function-declaration]
+   10 |     print( ""- - - - - -\n"" ) ;
+      |     ^~~~~
+      |     printf
+",N/A,0,ENGCC304
 671-1,lab1,"Enter your name: Enter your age: - - - - - -
 Hello Baithong 
 Age = 19","Enter your name: Enter your age: - - - - - -
 Hello Baithong 
 Age = 19",1,ENGCC304
-673-3,lab1,-1336732339,"Enter your name: Enter your age: - - - - - -
+673-3,lab1,-857008752,"Enter your name: Enter your age: - - - - - -
 Hello Baithong 
 Age = 19",0,ENGCC304
-673333333-3,lab1,-761457169,"Enter your name: Enter your age: - - - - - -
+673333333-3,lab1,-1744890314,"Enter your name: Enter your age: - - - - - -
 Hello Baithong 
 Age = 19",0,ENGCC304
 67543206110-8,lab1,"Enter your name: Enter your age: - - - - - -
