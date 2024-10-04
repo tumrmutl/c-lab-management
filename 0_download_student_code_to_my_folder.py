@@ -26,26 +26,22 @@ def main():
     # subject = input("กรุณาเลือกรหัสวิชา (ENGCC304, ENGCE117, ENGCE174): ")
 
     # เมนูเลือกวิชา
-    print("กรุณาเลือกรหัสวิชา:")
-    print("1. ENGCC304")
-    print("2. ENGCE117")
-    print("3. ENGCE174")
+    # print("กรุณาเลือกรหัสวิชา:")
+    # print("1. ENGCC304")
+    # print("2. ENGCE117")
+    # print("3. ENGCE174")
 
-    # รับค่าจากผู้ใช้
-    choice = input("กรอกหมายเลขวิชา (1/2/3): ")
-
-    # แมปหมายเลขวิชากับรหัสวิชา
-    if choice == '1':
-        subject = 'ENGCC304'
-    elif choice == '2':
-        subject = 'ENGCE117'
-    elif choice == '3':
-        subject = 'ENGCE174'
-    else:
-        print("เลือกหมายเลขไม่ถูกต้อง กรุณาลองใหม่")
-        return
-
-    # บันทึกรหัสวิชาลงใน subject.dat
+    # choice = input("กรอกหมายเลขวิชา (1/2/3): ")
+    # if choice == '1':
+    #     subject = 'ENGCC304'
+    # elif choice == '2':
+    #     subject = 'ENGCE117'
+    # elif choice == '3':
+    #     subject = 'ENGCE174'
+    # else:
+    #     print("เลือกหมายเลขไม่ถูกต้อง กรุณาลองใหม่")
+    #     return
+    subject = 'ENGCC304'
     save_subject_to_file(subject)
 
     # URL ที่จะใช้เพื่อดึงข้อมูลไฟล์พร้อมส่งตัวแปร subject

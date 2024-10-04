@@ -1,1 +1,2 @@
-Enter value: Series: 32 30 28 26 24 22 20 18 16 14 12 10 8 6 4 2 0 
+Enter num1: Enter num2: Before swap (num1 & num2): 10, 20
+After swap (num1 & num2): 20, 10

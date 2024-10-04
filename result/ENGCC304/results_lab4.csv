@@ -2,3 +2,10 @@ student id,lab,student output,teacher output,result,subject
 671-1,lab4,"Input the Employees ID (Max. 10 chars): Input the working hrs: Salary amount/hr: Employees ID = 0000500349
 Salary = U$ 374000.00","Input the Employees ID (Max. 10 chars): Input the working hrs: Salary amount/hr: Employees ID = 0000500349
 Salary = U$ 374000.00",1,ENGCC304
+67543206110-8,lab4,ข้อผิดพลาดในการรันโปรแกรม: ,N/A,0,ENGCC304
+67543206113-2,lab4,"Input the Employees ID (Max. 10 chars): 
+Input the working hrs: 
+Salary amount/hr: 
+Employees ID = 0000500349
+Salary = U$ 374000.00","Input the Employees ID (Max. 10 chars): Input the working hrs: Salary amount/hr: Employees ID = 0000500349
+Salary = U$ 374000.00",0,ENGCC304

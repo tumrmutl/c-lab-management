@@ -1,2 +1,8 @@
 student id,lab,student output,teacher output,result,subject
+67543206113-2,lab5,"ข้อผิดพลาดในการคอมไพล์: student_code/ENGCC304/67543206113-2_lab5.c:2:10: fatal error: 'conio.h' file not found
+#include <conio.h>
+         ^~~~~~~~~
+1 error generated.
+",N/A,0,ENGCC304
+67543206110-8,lab5,Enter score: D+ !,Enter score: D+ !,1,ENGCC304
 671-1,lab5,Enter score: D+ !,Enter score: D+ !,1,ENGCC304

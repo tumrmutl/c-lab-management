@@ -55,12 +55,61 @@ def normalize_code(code):
     code = re.sub(r'\s+', ' ', code).strip()
     return code
 
-# Function to compare tokenization
+def sanitize_code_for_tokenization(code):
+    """
+    Sanitize code by ensuring that strings and comments are properly closed
+    to avoid tokenize.TokenError.
+    """
+    # Remove comments
+    code = re.sub(r'//.*|/\*.*?\*/', '', code, flags=re.DOTALL)
+    
+    # Ensure quotes are balanced
+    if code.count('"') % 2 != 0 or code.count("'") % 2 != 0:
+        raise ValueError("Unmatched quotes in the code")
+
+    return code
+
+
+# def sanitize_code_for_tokenization(code):
+#     """
+#     Sanitize code by ensuring that strings and comments are properly closed
+#     to avoid tokenize.TokenError.
+#     """
+#     # Remove comments
+#     code = re.sub(r'//.*|/\*.*?\*/', '', code, flags=re.DOTALL)
+    
+#     # Ensure quotes are balanced
+#     if code.count('"') % 2 != 0 or code.count("'") % 2 != 0:
+#         raise ValueError("Unmatched quotes in the code")
+
+#     return code
+
 def compare_tokenization(code1, code2):
-    tokens1 = [token.string for token in tokenize.generate_tokens(StringIO(code1).readline) if token.type in (tokenize.NAME, tokenize.NUMBER)]
-    tokens2 = [token.string for token in tokenize.generate_tokens(StringIO(code2).readline) if token.type in (tokenize.NAME, tokenize.NUMBER)]
-    vectorizer = CountVectorizer().fit_transform([' '.join(tokens1), ' '.join(tokens2)])
-    return cosine_similarity(vectorizer.toarray())[0, 1] * 100
+    try:
+        code1 = sanitize_code_for_tokenization(code1)
+        code2 = sanitize_code_for_tokenization(code2)
+        
+        tokens1 = [token.string for token in tokenize.generate_tokens(StringIO(code1).readline) if token.type in (tokenize.NAME, tokenize.NUMBER)]
+        tokens2 = [token.string for token in tokenize.generate_tokens(StringIO(code2).readline) if token.type in (tokenize.NAME, tokenize.NUMBER)]
+
+        if not tokens1 or not tokens2:
+            print("Token lists are empty for one or both files.")
+            return 0
+
+        vectorizer = CountVectorizer().fit_transform([' '.join(tokens1), ' '.join(tokens2)])
+        return cosine_similarity(vectorizer.toarray())[0, 1] * 100
+    except tokenize.TokenError as e:
+        print(f"Tokenization error: {e}")
+        return 0
+
+
+
+# Function to compare tokenization
+# def compare_tokenization(code1, code2):
+#     tokens1 = [token.string for token in tokenize.generate_tokens(StringIO(code1).readline) if token.type in (tokenize.NAME, tokenize.NUMBER)]
+#     tokens2 = [token.string for token in tokenize.generate_tokens(StringIO(code2).readline) if token.type in (tokenize.NAME, tokenize.NUMBER)]
+#     vectorizer = CountVectorizer().fit_transform([' '.join(tokens1), ' '.join(tokens2)])
+#     return cosine_similarity(vectorizer.toarray())[0, 1] * 100
 
 # Function to get embeddings and compare them
 tokenizer = RobertaTokenizer.from_pretrained('microsoft/codebert-base')
