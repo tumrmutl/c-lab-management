@@ -1,30 +1,11 @@
 student id,lab,student output,teacher output,result,subject
-67543206110-8,lab3,"Enter N : Enter value[0] : Enter value[1] : Enter value[2] : Enter value[3] : Enter value[4] : Enter value[5] : Enter value[6] : Enter value[7] : Enter value[8] : Index:   0  1  2  3  4  5  6  7  8 
-Array:   2  #  #  5  #  7  3  # 13","Enter N : Enter value[0] : Enter value[1] : Enter value[2] : Enter value[3] : Enter value[4] : Enter value[5] : Enter value[6] : Enter value[7] : Enter value[8] : Index:   0  1  2  3  4  5  6  7  8 
-Array:   2  #  #  5  #  7  3  # 13",1,ENGCC304
 671-1,lab3,"Enter N : Enter value[0] : Enter value[1] : Enter value[2] : Enter value[3] : Enter value[4] : Enter value[5] : Enter value[6] : Enter value[7] : Enter value[8] : Index:   0  1  2  3  4  5  6  7  8 
 Array:   2  #  #  5  #  7  3  # 13","Enter N : Enter value[0] : Enter value[1] : Enter value[2] : Enter value[3] : Enter value[4] : Enter value[5] : Enter value[6] : Enter value[7] : Enter value[8] : Index:   0  1  2  3  4  5  6  7  8 
 Array:   2  #  #  5  #  7  3  # 13",1,ENGCC304
 67543206006-8,lab3,ข้อผิดพลาดในการรันโปรแกรม: ,N/A,0,ENGCC304
-67543206113-2,lab3,"Enter Matrix1 : 
-Enter number rows and columns : Enter [0 0] value : Enter [0 1] value : Enter [1 0] value : Enter [1 1] value : Enter [2 0] value : Enter [2 1] value : Enter [3 0] value : Enter [3 1] value : Enter [4 0] value : Enter [4 1] value : Enter [5 0] value : Enter [5 1] value : Enter [6 0] value : Enter [6 1] value : Enter [7 0] value : Enter [7 1] value : Enter [8 0] value : Enter [8 1] value : Enter Matrix2 : 
-Enter number rows and columns : Matrix1 : 
-4 6 
-5 8 
-7 3 
-14 13 
-1 1831645056 
-1079246883 598176247 
-0 1831645392 
-0 0 
-0 0 
-Matrix2 : 
-
-Transpose of Matrix1 is : 
-4 5 7 14 1 6 8 3 13 
-6 8 3 13 1831645056 598176247 1831645392 0 0 
-
-Matrix1 and Matrix2 cannot be multiplied","Enter N : Enter value[0] : Enter value[1] : Enter value[2] : Enter value[3] : Enter value[4] : Enter value[5] : Enter value[6] : Enter value[7] : Enter value[8] : Index:   0  1  2  3  4  5  6  7  8 
-Array:   2  #  #  5  #  7  3  # 13",0,ENGCC304
+67543206110-8,lab3,"Enter N : Enter value[0] : Enter value[1] : Enter value[2] : Enter value[3] : Enter value[4] : Enter value[5] : Enter value[6] : Enter value[7] : Enter value[8] : Index:   0  1  2  3  4  5  6  7  8 
+Array:   2  #  #  5  #  7  3  # 13","Enter N : Enter value[0] : Enter value[1] : Enter value[2] : Enter value[3] : Enter value[4] : Enter value[5] : Enter value[6] : Enter value[7] : Enter value[8] : Index:   0  1  2  3  4  5  6  7  8 
+Array:   2  #  #  5  #  7  3  # 13",1,ENGCC304
+67543206113-2,lab3,โปรแกรมรันเกินเวลาที่กำหนด (5 วินาที),N/A,0,ENGCC304
 9999999-9,lab3,11,"Enter N : Enter value[0] : Enter value[1] : Enter value[2] : Enter value[3] : Enter value[4] : Enter value[5] : Enter value[6] : Enter value[7] : Enter value[8] : Index:   0  1  2  3  4  5  6  7  8 
 Array:   2  #  #  5  #  7  3  # 13",0,ENGCC304

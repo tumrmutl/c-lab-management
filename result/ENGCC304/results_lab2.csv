@@ -1,12 +1,4 @@
 student id,lab,student output,teacher output,result,subject
-672-2,lab2,14506993,"Enter a character: 
-Enter two integers: 
-Enter a floating-point number: 
-Enter a string: 
-You entered character: M
-You entered integers: 89 and 54
-You entered floating-point number: 196.24
-You entered string: Thailand",0,ENGCC304
 671-1,lab2,"Enter a character: 
 Enter two integers: 
 Enter a floating-point number: 
@@ -22,3 +14,11 @@ You entered character: M
 You entered integers: 89 and 54
 You entered floating-point number: 196.24
 You entered string: Thailand",1,ENGCC304
+672-2,lab2,1436423851,"Enter a character: 
+Enter two integers: 
+Enter a floating-point number: 
+Enter a string: 
+You entered character: M
+You entered integers: 89 and 54
+You entered floating-point number: 196.24
+You entered string: Thailand",0,ENGCC304

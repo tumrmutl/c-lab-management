@@ -1,2 +1,5 @@
-Enter num1: Enter num2: Before swap (num1 & num2): 10, 20
-After swap (num1 & num2): 20, 10
+Input the Employees ID (Max. 10 chars): 
+Input the working hrs: 
+Salary amount/hr: 
+Employees ID = 0000500349
+Salary = U$ 374000.00

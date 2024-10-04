@@ -40,11 +40,13 @@ def save_results_to_csv(results, lab_number, subject):
         os.makedirs(result_folder)
     
     csv_file = os.path.join(result_folder, f'results_{lab_number}.csv')
-    with open(csv_file, mode='w', newline='') as file:
+    # เพิ่มการกำหนด encoding เป็น 'utf-8'
+    with open(csv_file, mode='w', newline='', encoding='utf-8') as file:
         writer = csv.writer(file)
         writer.writerow(['student id', 'lab', 'student output', 'teacher output', 'result', 'subject'])
         for result in results:
             writer.writerow(result)
+
 
 def main():
     # อ่านข้อมูลรหัสวิชาจาก subject.dat

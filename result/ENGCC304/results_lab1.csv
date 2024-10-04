@@ -1,16 +1,16 @@
 student id,lab,student output,teacher output,result,subject
-673333333-3,lab1,82009153,"Enter your name: Enter your age: - - - - - -
-Hello Baithong 
-Age = 19",0,ENGCC304
-673-3,lab1,49306609,"Enter your name: Enter your age: - - - - - -
-Hello Baithong 
-Age = 19",0,ENGCC304
-67543206110-8,lab1,"Enter your name: Enter your age: - - - - - -
+671-1,lab1,"Enter your name: Enter your age: - - - - - -
 Hello Baithong 
 Age = 19","Enter your name: Enter your age: - - - - - -
 Hello Baithong 
 Age = 19",1,ENGCC304
-671-1,lab1,"Enter your name: Enter your age: - - - - - -
+673-3,lab1,-1336732339,"Enter your name: Enter your age: - - - - - -
+Hello Baithong 
+Age = 19",0,ENGCC304
+673333333-3,lab1,-761457169,"Enter your name: Enter your age: - - - - - -
+Hello Baithong 
+Age = 19",0,ENGCC304
+67543206110-8,lab1,"Enter your name: Enter your age: - - - - - -
 Hello Baithong 
 Age = 19","Enter your name: Enter your age: - - - - - -
 Hello Baithong 

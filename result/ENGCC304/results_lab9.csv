@@ -1,8 +1,8 @@
 student id,lab,student output,teacher output,result,subject
-67543206110-8,lab9,"Enter N : Enter value[0] :  Enter value[1] :  Enter value[2] :  Enter value[3] :  Enter value[4] :  Index:   0  1  2  3  4 
- Array:  11  # 23  #  7","Enter N : Enter value[0] : Enter value[1] : Enter value[2] : Enter value[3] : Enter value[4] : Index:   0  1  2  3  4 
-Array:  11  # 23  #  7",0,ENGCC304
 671-1,lab9,"Enter N : Enter value[0] : Enter value[1] : Enter value[2] : Enter value[3] : Enter value[4] : Index:   0  1  2  3  4 
 Array:  11  # 23  #  7","Enter N : Enter value[0] : Enter value[1] : Enter value[2] : Enter value[3] : Enter value[4] : Index:   0  1  2  3  4 
 Array:  11  # 23  #  7",1,ENGCC304
+67543206110-8,lab9,"Enter N : Enter value[0] :  Enter value[1] :  Enter value[2] :  Enter value[3] :  Enter value[4] :  Index:   0  1  2  3  4 
+ Array:  11  # 23  #  7","Enter N : Enter value[0] : Enter value[1] : Enter value[2] : Enter value[3] : Enter value[4] : Index:   0  1  2  3  4 
+Array:  11  # 23  #  7",0,ENGCC304
 67543206113-2,lab9,ข้อผิดพลาดในการรันโปรแกรม: ,N/A,0,ENGCC304

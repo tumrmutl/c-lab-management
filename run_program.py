@@ -2,6 +2,8 @@ import subprocess
 import time
 from pynput import keyboard
 
+delay = 60 * 30
+
 # ฟังก์ชันสำหรับรันไฟล์ Python
 def run_python_file(file_name):
     try:
@@ -42,7 +44,7 @@ def main_loop():
         listener.start()
 
         # รอ 5 นาที (300 วินาที) หรือจนกว่าจะตรวจพบการกด ESC
-        for _ in range(300):
+        for _ in range( delay ):
             if stop_program:
                 break
             time.sleep(1)

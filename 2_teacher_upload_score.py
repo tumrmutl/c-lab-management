@@ -31,7 +31,8 @@ def upload_data(data, upload_url):
 def process_csv_file(csv_file, upload_url):
     """Process CSV file and convert it to a JSON format."""
     try:
-        with open(csv_file, 'r') as file:
+        # เพิ่ม encoding='utf-8' ในการเปิดไฟล์
+        with open(csv_file, 'r', encoding='utf-8') as file:
             reader = csv.DictReader(file)
             data = list(reader)  # Convert CSV rows to a list of dictionaries
 
@@ -46,6 +47,7 @@ def process_csv_file(csv_file, upload_url):
 
     except IOError as e:
         print(f"Failed to open file: {e}")
+
 
 def get_subject_code():
     """Read the subject code from subject.dat file."""
